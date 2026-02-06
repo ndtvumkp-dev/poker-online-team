@@ -204,7 +204,7 @@
     }
     .hide{ display:none !important; }
 
-    /* ===== Poker Table UI ===== */
+    /* ===== Poker Table (9-max) ===== */
     .tableWrap{
       position:relative;
       border:1px solid var(--stroke);
@@ -214,13 +214,13 @@
         linear-gradient(180deg, rgba(12, 22, 44, .55), rgba(8, 14, 28, .35));
       padding: 14px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
-      min-height: 560px;
+      min-height: 600px;
       overflow:hidden;
     }
 
     .felt{
       position:absolute;
-      inset: 60px 60px 120px 60px;
+      inset: 60px 60px 140px 60px;
       border-radius: 999px;
       background:
         radial-gradient(900px 360px at 50% 35%, rgba(34,197,94,.22), rgba(0,0,0,0) 60%),
@@ -232,10 +232,9 @@
         0 30px 70px rgba(0,0,0,.35);
       filter: saturate(1.08);
     }
-
     .rim{
       position:absolute;
-      inset: 42px 42px 102px 42px;
+      inset: 42px 42px 120px 42px;
       border-radius: 999px;
       border: 2px solid rgba(255,255,255,.06);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
@@ -244,10 +243,10 @@
 
     .centerHUD{
       position:absolute;
-      left:50%; top: 235px;
+      left:50%; top: 255px;
       transform: translate(-50%, -50%);
       display:flex; flex-direction:column; align-items:center; gap:10px;
-      width:min(520px, calc(100% - 28px));
+      width:min(560px, calc(100% - 28px));
       z-index: 2;
     }
 
@@ -276,6 +275,7 @@
       justify-content:center;
       flex-wrap:wrap;
       margin-top:4px;
+      min-height: 84px;
     }
 
     .cardFace{
@@ -304,9 +304,7 @@
     }
     .cardFace span{ position:relative; z-index:1; }
 
-    .potStack{
-      display:flex; align-items:center; gap:10px;
-    }
+    .potStack{ display:flex; align-items:center; gap:10px; }
     .chip{
       width:24px; height:24px; border-radius:999px;
       border:2px solid rgba(255,255,255,.18);
@@ -320,7 +318,7 @@
     }
     .amt{ width:220px; max-width:100%; }
 
-    /* Seats around table (positions) */
+    /* Seats */
     .seat{
       position:absolute;
       width: 220px;
@@ -337,6 +335,7 @@
       overflow:hidden;
       position:relative;
     }
+
     .pTop{
       display:flex; justify-content:space-between; gap:8px; align-items:flex-start;
       margin-bottom: 8px;
@@ -366,6 +365,20 @@
       background: rgba(0,0,0,.18);
       color: var(--muted);
       white-space:nowrap;
+    }
+
+    .blindTag{
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,176,32,.14);
+      color: #ffe6b5;
+      white-space:nowrap;
+    }
+    .blindTag.bb{
+      background: rgba(124,92,255,.14);
+      color: #e7ddff;
     }
 
     .pMeta{
@@ -403,23 +416,47 @@
       box-shadow: 0 10px 25px rgba(0,0,0,.25);
     }
 
-    /* seat positions (8 max recommended; auto maps by index) */
-    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 260px; } /* bottom center */
-    .s1{ right: 22px; bottom: 120px; }
-    .s2{ right: 22px; top: 130px; }
-    .s3{ left:50%; top: 56px; transform: translateX(-50%); }
-    .s4{ left: 22px; top: 130px; }
-    .s5{ left: 22px; bottom: 120px; }
-    .s6{ left:50%; bottom: 140px; transform: translateX(-50%); } /* extra */
-    .s7{ left:50%; top: 140px; transform: translateX(-50%); } /* extra */
+    /* 9-max layout */
+    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 270px; }          /* bottom center */
+    .s1{ right: 26px; bottom: 85px; }                                                  /* bottom-right */
+    .s2{ right: 26px; top: 220px; }                                                    /* right-mid */
+    .s3{ right: 170px; top: 70px; }                                                    /* top-right */
+    .s4{ left:50%; top: 48px; transform: translateX(-50%); }                           /* top center */
+    .s5{ left: 170px; top: 70px; }                                                     /* top-left */
+    .s6{ left: 26px; top: 220px; }                                                     /* left-mid */
+    .s7{ left: 26px; bottom: 85px; }                                                   /* bottom-left */
+    .s8{ left:50%; bottom: 150px; transform: translateX(-50%); }                       /* mid-bottom */
 
     @media (max-width: 980px){
-      .tableWrap{ min-height: 680px; }
-      .felt{ inset: 66px 24px 150px 24px; }
-      .rim{ inset: 52px 16px 132px 16px; }
+      .tableWrap{ min-height: 740px; }
+      .felt{ inset: 66px 24px 170px 24px; }
+      .rim{ inset: 52px 16px 150px 16px; }
       .seat{ width: 210px; }
       .s1,.s2{ right: 10px; }
-      .s4,.s5{ left: 10px; }
+      .s6,.s7{ left: 10px; }
+      .s3{ right: 110px; }
+      .s5{ left: 110px; }
+    }
+
+    /* ===== Chip fly animation ===== */
+    .flyChip{
+      position: fixed;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.18);
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), rgba(124,92,255,.35));
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+      left: var(--sx);
+      top: var(--sy);
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      animation: fly 520ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    @keyframes fly{
+      0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+      70%  { transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(1.05); opacity: 1; }
+      100% { transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(.7); opacity: 0; }
     }
   </style>
 </head>
@@ -433,7 +470,7 @@
         <div class="logo">♠</div>
         <div class="title">
           <h1>Poker Online (Texas Hold’em)</h1>
-          <p>Real-time — bàn poker sinh động, dễ chơi cho team</p>
+          <p>9-max table — SB/BB + chip animation</p>
         </div>
       </div>
       <div class="chipsRow">
@@ -484,7 +521,7 @@
             <button class="btn success" id="findBtn">✅ Vào phòng</button>
           </div>
           <div class="hint">
-            Nếu vào không được, có thể host chưa mở link / Render đang “sleep”. Hãy refresh 1 lần.
+            Nếu vào không được, có thể Render đang “sleep”. Hãy refresh 1 lần.
           </div>
         </div>
 
@@ -492,13 +529,13 @@
 
         <div class="hint" style="margin-top:12px">
           <b>Luật vốn:</b> 2000 token/người. Mọi cược là bội số của <b>5</b> (1 chip = 5 token).<br/>
-          <b>Mẹo:</b> Bản MVP: người vào giữa ván sẽ “đứng xem” và vào ván sau.
+          <b>Giới hạn:</b> mỗi phòng tối đa <b>9 người</b>.
         </div>
       </div>
 
       <!-- Game -->
       <div class="card hide" id="gameCard">
-        <h2 style="margin:0 0 12px"><span class="icon">🎲</span> Bàn chơi</h2>
+        <h2 style="margin:0 0 12px"><span class="icon">🎲</span> Bàn chơi (9-max)</h2>
 
         <div class="row" style="justify-content:space-between; margin-bottom:12px;">
           <div class="row" style="gap:8px;">
@@ -509,12 +546,12 @@
           <button class="btn primary" id="startBtn">▶ Bắt đầu ván</button>
         </div>
 
-        <div class="tableWrap">
+        <div class="tableWrap" id="tableWrap">
           <div class="felt"></div>
           <div class="rim"></div>
 
           <!-- Center HUD -->
-          <div class="centerHUD">
+          <div class="centerHUD" id="centerHUD">
             <div class="hudRow">
               <div class="badge">Community</div>
               <div class="badge potStack">
@@ -523,6 +560,7 @@
               </div>
               <div class="badge"><b>Turn:</b> <span id="turnLabel">-</span></div>
             </div>
+
             <div class="communityCards" id="communityCards"></div>
 
             <div class="actionsBar">
@@ -537,11 +575,11 @@
 
             <div class="err" id="err2"></div>
             <div class="hint" style="text-align:center; margin-top:2px">
-              <b>Bet</b> chỉ khi chưa ai bet. <b>Raise</b> là tăng thêm ngoài phần Call.
+              <b>SB/BB</b> sẽ hiển thị cạnh người chịu blind. Chip sẽ bay vào pot khi bet/call.
             </div>
           </div>
 
-          <!-- Seats will be injected here -->
+          <!-- Seats injected -->
           <div id="seatsLayer"></div>
         </div>
       </div>
@@ -552,10 +590,13 @@
   <script>
     const socket = io();
 
+    // UI constants
+    const MIN_UNIT = 5;
+
     let roomId = "";
     let myId = "";
     let mode = "create";
-    let lastState = null;
+    let prevState = null;
 
     const $ = (id) => document.getElementById(id);
 
@@ -614,10 +655,12 @@
     });
 
     socket.on("state", (state) => {
-      lastState = state;
-
+      // Show game
       $("joinCard").classList.add("hide");
       $("gameCard").classList.remove("hide");
+
+      // Animate chips based on diff
+      if (prevState) animateChipDiff(prevState, state);
 
       $("stage").textContent = state.stage;
       $("pot").textContent = state.pot;
@@ -625,6 +668,8 @@
 
       renderCommunity(state.community || []);
       renderSeats(state);
+
+      prevState = state;
     });
 
     function renderCommunity(community){
@@ -642,30 +687,41 @@
       });
     }
 
-    // Map players to visual seats around table by their sorted seat order
+    // Compute SB/BB seats from dealerSeat + sorted seats
+    function computeBlinds(state){
+      const seats = (state.players || []).map(p => p.seat).sort((a,b)=>a-b);
+      if (seats.length < 2) return { sbSeat: null, bbSeat: null };
+      const dIdx = seats.indexOf(state.dealerSeat);
+      if (dIdx === -1) return { sbSeat: null, bbSeat: null };
+      const sbSeat = seats[(dIdx + 1) % seats.length];
+      const bbSeat = seats[(dIdx + 2) % seats.length];
+      return { sbSeat, bbSeat };
+    }
+
     function renderSeats(state){
       const layer = $("seatsLayer");
       layer.innerHTML = "";
 
-      const players = (state.players || []).slice();
+      const players = (state.players || []).slice().sort((a,b)=>a.seat-b.seat);
 
-      // set turn label
+      // turn label
       const turnP = players.find(p => p.seat === state.currentSeat);
       $("turnLabel").textContent = turnP ? turnP.name : "-";
 
-      // visual slots around table
-      const visualSlots = ["s0","s1","s2","s3","s4","s5","s6","s7"];
+      // 9 visual slots
+      const visualSlots = ["s0","s1","s2","s3","s4","s5","s6","s7","s8"];
 
-      // sort by seat so stable
-      players.sort((a,b)=>a.seat-b.seat);
+      // blinds
+      const { sbSeat, bbSeat } = computeBlinds(state);
 
       players.forEach((p, idx) => {
         const slot = visualSlots[idx % visualSlots.length];
 
         const seatDiv = document.createElement("div");
         seatDiv.className = `seat ${slot}` + (p.id===myId ? " me" : "") + (p.seat===state.currentSeat ? " turn" : "") + (p.folded ? " folded" : "");
+        seatDiv.dataset.playerId = p.id;
+        seatDiv.dataset.seat = p.seat;
 
-        // dot state
         let dotClass = "";
         if (p.folded) dotClass = "fold";
         else if (p.allIn) dotClass = "allin";
@@ -674,12 +730,19 @@
         const status = p.folded ? "FOLDED" : (p.allIn ? "ALL-IN" : (p.seat === state.currentSeat ? "ĐẾN LƯỢT" : "CHỜ"));
         const bet = p.betThisRound || 0;
 
+        const blindHtml =
+          (p.seat === sbSeat) ? `<div class="blindTag">SB</div>` :
+          (p.seat === bbSeat) ? `<div class="blindTag bb">BB</div>` : ``;
+
         seatDiv.innerHTML = `
           <div class="pBox">
             ${p.seat === state.dealerSeat ? `<div class="dealerBtn">D</div>` : ``}
             <div class="pTop">
               <div class="pName"><span class="dot ${dotClass}"></span> ${escapeHtml(p.name)} ${p.id===myId ? "(Bạn)" : ""}</div>
-              <div class="miniBadge">${status}</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+                ${blindHtml}
+                <div class="miniBadge">${status}</div>
+              </div>
             </div>
 
             <div class="pMeta">
@@ -703,6 +766,61 @@
       return cards.map(c => `<div class="cardFace"><span>${escapeHtml(c)}</span></div>`).join("");
     }
 
+    // ===== Chip animation =====
+    function animateChipDiff(prev, next){
+      // only animate when pot increases
+      if (!prev || !next) return;
+
+      const prevById = new Map((prev.players||[]).map(p => [p.id, p]));
+      const nextById = new Map((next.players||[]).map(p => [p.id, p]));
+
+      const potDelta = (next.pot||0) - (prev.pot||0);
+      if (potDelta <= 0) return;
+
+      // Find who increased betThisRound (could be multiple, but usually 1 per action)
+      const contributors = [];
+      for (const [id, np] of nextById.entries()){
+        const pp = prevById.get(id);
+        const d = (np.betThisRound||0) - (pp?.betThisRound||0);
+        if (d > 0) contributors.push({ id, delta: d });
+      }
+      if (contributors.length === 0) return;
+
+      // pick primary contributor (largest delta)
+      contributors.sort((a,b)=>b.delta-a.delta);
+      const main = contributors[0];
+
+      // compute chip count (limit to avoid spam)
+      const chipCount = Math.max(1, Math.min(7, Math.ceil(main.delta / (MIN_UNIT * 6))));
+
+      const fromEl = document.querySelector(`.seat[data-player-id="${cssEscape(main.id)}"]`);
+      const toEl = $("centerHUD");
+      if (!fromEl || !toEl) return;
+
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+
+      const sx = fromRect.left + fromRect.width * 0.5;
+      const sy = fromRect.top + 22; // slightly near top of seat box
+      const tx = toRect.left + toRect.width * 0.5;
+      const ty = toRect.top + 30;
+
+      for (let i=0; i<chipCount; i++){
+        setTimeout(() => flyChip(sx, sy, tx, ty), i * 60);
+      }
+    }
+
+    function flyChip(sx, sy, tx, ty){
+      const el = document.createElement("div");
+      el.className = "flyChip";
+      el.style.setProperty("--sx", sx + "px");
+      el.style.setProperty("--sy", sy + "px");
+      el.style.setProperty("--dx", (tx - sx) + "px");
+      el.style.setProperty("--dy", (ty - sy) + "px");
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 700);
+    }
+
     function getAmt(){
       const v = parseInt($("amt").value || "0", 10);
       return isNaN(v) ? 0 : v;
@@ -718,6 +836,11 @@
       return String(s).replace(/[&<>"']/g, (c) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
       }[c]));
+    }
+
+    function cssEscape(s){
+      // minimal escape for querySelector
+      return String(s).replace(/["\\]/g, "\\$&");
     }
 
     setMode("create");
