@@ -16,10 +16,10 @@ const PORT = process.env.PORT || 3000;
 
 // ====== CONFIG ======
 const START_TOKENS = 2000;
-const MIN_UNIT = 5;   // 1 chip = 5 token, mọi cược phải là bội số của 5
-const SB = 10;        // small blind (bội số của 5)
-const BB = 20;        // big blind (bội số của 5)
-const MAX_PLAYERS = 9; // ✅ tối đa 9 người / phòng
+const MIN_UNIT = 5;      // cược phải là bội số của 5
+const SB = 10;           // small blind
+const BB = 20;           // big blind
+const MAX_PLAYERS = 9;   // hard cap
 
 // ====== STATE ======
 const rooms = new Map();
@@ -28,6 +28,8 @@ const rooms = new Map();
 Room state:
 {
   id,
+  hostId: socketId | null,
+  maxPlayers: 2..9,
   players: [{ id, name, tokens, seat, folded, allIn, betThisRound, cards: [] }],
   started: false,
   deck: [],
@@ -53,7 +55,7 @@ function makeDeck() {
   const deck = [];
   for (const r of ranks) for (const s of suits) deck.push(r + s);
 
-  // shuffle (Fisher-Yates)
+  // shuffle
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -65,6 +67,8 @@ function getRoom(roomId) {
   if (!rooms.has(roomId)) {
     rooms.set(roomId, {
       id: roomId,
+      hostId: null,
+      maxPlayers: 9,
       players: [],
       started: false,
       deck: [],
@@ -82,7 +86,7 @@ function getRoom(roomId) {
 }
 
 function publicState(room, viewerId = null) {
-  // Ẩn bài người khác, chỉ người xem thấy bài của mình
+  // Ẩn bài của người khác; chỉ viewer thấy bài của mình
   const players = room.players
     .slice()
     .sort((a, b) => a.seat - b.seat)
@@ -101,6 +105,8 @@ function publicState(room, viewerId = null) {
 
   return {
     id: room.id,
+    hostId: room.hostId,
+    maxPlayers: room.maxPlayers,
     started: room.started,
     stage: room.stage,
     pot: room.pot,
@@ -220,7 +226,7 @@ function startHand(room) {
 }
 
 function advanceStage(room) {
-  // Nếu chỉ còn 1 người chưa fold => thắng luôn
+  // If only one player remains (not folded) => wins immediately
   const act = activePlayers(room);
   if (act.length === 1) {
     act[0].tokens += room.pot;
@@ -257,13 +263,13 @@ function advanceStage(room) {
     return;
   }
 
-  // first to act postflop is seat after dealer
+  // postflop: first to act is seat after dealer
   const seats = room.players.map((p) => p.seat).sort((a, b) => a - b);
   const dealerIdx = seats.indexOf(room.dealerSeat);
-  room.currentSeat = seats[(dealerIdx + 1) % seats.length];
+  let first = seats[(dealerIdx + 1) % seats.length];
 
-  // skip folded/all-in
-  room.currentSeat = nextSeat(room, room.currentSeat === seats[0] ? seats[seats.length - 1] : room.currentSeat - 1);
+  // skip folded/all-in/no cards
+  room.currentSeat = nextSeat(room, first === seats[0] ? seats[seats.length - 1] : first - 1);
 
   broadcastRoom(room);
 }
@@ -278,15 +284,17 @@ function resolveShowdown(room) {
   });
 
   const winnersHands = Hand.winners(solved.map((x) => x.hand));
-  const winners = solved.filter((x) => winnersHands.includes(x.hand)).map((x) => x.p);
+  const winners = solved
+    .filter((x) => winnersHands.includes(x.hand))
+    .map((x) => x.p);
 
   const share = Math.floor(room.pot / winners.length);
   let remainder = room.pot - share * winners.length;
 
   for (const w of winners) {
     w.tokens += share;
-    // chia lẻ theo unit 5 (nếu còn)
-    if (remainder > 0) {
+    // chia lẻ theo unit 5 nếu còn
+    if (remainder >= MIN_UNIT) {
       w.tokens += MIN_UNIT;
       remainder -= MIN_UNIT;
     }
@@ -296,7 +304,7 @@ function resolveShowdown(room) {
 
   broadcastRoom(room);
 
-  // tự động bắt đầu ván mới sau 3 giây (nếu còn >=2 người có token)
+  // auto new hand after 3 seconds if enough eligible players
   setTimeout(() => {
     const eligible = room.players.filter((p) => p.tokens > 0).length;
     if (eligible >= 2) startHand(room);
@@ -337,7 +345,7 @@ function doAction(room, player, action, amount = 0) {
     takeFromPlayer(room, player, player.tokens);
   }
 
-  // Nếu chỉ còn 1 người chưa fold => end
+  // If only one player remains => end now
   const act = activePlayers(room);
   if (act.length === 1) {
     act[0].tokens += room.pot;
@@ -348,7 +356,7 @@ function doAction(room, player, action, amount = 0) {
     return;
   }
 
-  // Nếu hết vòng cược => sang stage
+  // Round finished => advance stage
   if (allBetsSettled(room)) {
     advanceStage(room);
     return;
@@ -359,10 +367,67 @@ function doAction(room, player, action, amount = 0) {
   broadcastRoom(room);
 }
 
+function safeRoomId(roomId) {
+  return String(roomId || "").trim().slice(0, 24);
+}
+function safeName(name) {
+  return String(name || "").trim().slice(0, 18);
+}
+
 io.on("connection", (socket) => {
+  // ===== Create Room (for UI flow) =====
+  socket.on("createRoom", ({ roomId, name, maxPlayers }) => {
+    roomId = safeRoomId(roomId);
+    name = safeName(name);
+    maxPlayers = Math.max(2, Math.min(MAX_PLAYERS, parseInt(maxPlayers || "9", 10)));
+
+    if (!roomId || !name) {
+      socket.emit("errorMsg", "Bạn cần nhập Tên người chơi và Tên phòng.");
+      return;
+    }
+
+    const room = getRoom(roomId);
+
+    // set host only once (first creator)
+    if (!room.hostId) room.hostId = socket.id;
+
+    // allow host to set maxPlayers (only if not started)
+    if (!room.started) room.maxPlayers = maxPlayers;
+
+    // NOTE: join is handled by join event from client
+  });
+
+  // ===== List Rooms (for Find page) =====
+  socket.on("listRooms", () => {
+    const list = [];
+    for (const r of rooms.values()) {
+      const maxPlayers = r.maxPlayers || MAX_PLAYERS;
+      list.push({
+        id: r.id,
+        players: r.players.length,
+        maxPlayers,
+        started: !!r.started && r.stage !== "lobby",
+      });
+    }
+    // show rooms that are created (hostId) or have players
+    const filtered = list.filter((x) => {
+      const rr = rooms.get(x.id);
+      return x.players > 0 || (rr && rr.hostId);
+    });
+
+    // sort: waiting first, then by players desc
+    filtered.sort((a, b) => {
+      if (a.started !== b.started) return a.started ? 1 : -1;
+      return b.players - a.players;
+    });
+
+    socket.emit("roomsList", filtered);
+  });
+
+  // ===== Join Room =====
   socket.on("join", ({ roomId, name }) => {
-    roomId = String(roomId || "").trim().slice(0, 24);
-    name = String(name || "").trim().slice(0, 18);
+    roomId = safeRoomId(roomId);
+    name = safeName(name);
 
     if (!roomId || !name) {
       socket.emit("errorMsg", "Bạn cần nhập Tên và Mã phòng.");
@@ -371,20 +436,24 @@ io.on("connection", (socket) => {
 
     const room = getRoom(roomId);
 
-    // ✅ Giới hạn tối đa 9 người
-    if (room.players.length >= MAX_PLAYERS) {
-      socket.emit("errorMsg", "Phòng đã đủ 9 người. Hãy tạo phòng mới hoặc dùng mã phòng khác.");
+    // If no host set yet, first joiner becomes host
+    if (!room.hostId) room.hostId = socket.id;
+
+    // limit by room.maxPlayers (fallback MAX_PLAYERS)
+    const limit = Math.max(2, Math.min(MAX_PLAYERS, room.maxPlayers || MAX_PLAYERS));
+    if (room.players.length >= limit) {
+      socket.emit("errorMsg", `Phòng đã đủ ${limit} người. Hãy tạo phòng mới hoặc dùng mã phòng khác.`);
       return;
     }
 
-    // chống trùng tên trong phòng
+    // prevent duplicate name in room
     const existingName = room.players.some((p) => p.name.toLowerCase() === name.toLowerCase());
     if (existingName) {
       socket.emit("errorMsg", "Tên này đã có trong phòng. Hãy chọn tên khác.");
       return;
     }
 
-    // gán seat nhỏ nhất chưa dùng
+    // assign smallest available seat
     const usedSeats = new Set(room.players.map((p) => p.seat));
     let seat = 0;
     while (usedSeats.has(seat)) seat++;
@@ -403,7 +472,7 @@ io.on("connection", (socket) => {
     room.players.push(player);
     socket.join(roomId);
 
-    // nếu đang trong ván mà người mới vào: cho họ đứng xem (không có bài)
+    // if joining mid-game => spectator until next hand
     if (room.started && room.stage !== "lobby") {
       player.cards = [];
       player.folded = true;
@@ -414,10 +483,16 @@ io.on("connection", (socket) => {
     broadcastRoom(room);
   });
 
+  // ===== Start (Host only) =====
   socket.on("start", ({ roomId }) => {
-    const room = getRoom(String(roomId || "").trim());
+    const room = getRoom(safeRoomId(roomId));
     const player = room.players.find((p) => p.id === socket.id);
     if (!player) return;
+
+    if (room.hostId && room.hostId !== socket.id) {
+      socket.emit("errorMsg", "Chỉ host mới có quyền bắt đầu.");
+      return;
+    }
 
     if (room.players.filter((p) => p.tokens > 0).length < 2) {
       socket.emit("errorMsg", "Cần ít nhất 2 người còn token để bắt đầu.");
@@ -427,20 +502,28 @@ io.on("connection", (socket) => {
     startHand(room);
   });
 
+  // ===== Action =====
   socket.on("action", ({ roomId, action, amount }) => {
-    const room = getRoom(String(roomId || "").trim());
+    const room = getRoom(safeRoomId(roomId));
     const player = room.players.find((p) => p.id === socket.id);
     if (!player) return;
     doAction(room, player, action, amount);
   });
 
+  // ===== Disconnect =====
   socket.on("disconnect", () => {
     for (const room of rooms.values()) {
       const idx = room.players.findIndex((p) => p.id === socket.id);
       if (idx !== -1) {
+        const wasHost = room.hostId === socket.id;
         room.players.splice(idx, 1);
 
-        // nếu đang chơi mà thiếu người -> về lobby
+        // if host left => assign new host to first player (if any)
+        if (wasHost) {
+          room.hostId = room.players.length ? room.players[0].id : null;
+        }
+
+        // if too few players => reset to lobby
         if (room.players.length < 2) {
           room.started = false;
           room.stage = "lobby";
@@ -455,6 +538,11 @@ io.on("connection", (socket) => {
         }
 
         broadcastRoom(room);
+
+        // optional cleanup: remove empty rooms
+        if (room.players.length === 0 && !room.hostId) {
+          rooms.delete(room.id);
+        }
         break;
       }
     }

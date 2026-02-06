@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Poker Online (Texas Hold’em)</title>
+  <title>Poker Online</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,43 +54,21 @@
       to{ transform: translate3d(1%, 1%, 0) scale(1.06); }
     }
 
-    .container{ max-width: 1200px; margin: 22px auto; padding: 0 14px 28px; }
-
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-      margin-bottom: 14px;
+    /* Layout: center everything */
+    .page{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding: 18px 14px;
+      gap: 14px;
     }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{
-      width:46px; height:46px; border-radius:16px;
-      background: linear-gradient(135deg, rgba(124,92,255,.92), rgba(34,197,94,.62));
-      box-shadow: 0 12px 32px rgba(124,92,255,.22);
-      display:grid; place-items:center;
-      font-weight:900; letter-spacing:.5px;
+    .wrap{
+      width: min(520px, 100%);
     }
-    .title h1{ font-size:18px; margin:0; line-height:1.1; font-weight:900; }
-    .title p{ margin:2px 0 0; font-size:12px; color:var(--muted); }
-
-    .chipsRow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    .tag{
-      border:1px solid var(--stroke);
-      background: rgba(15, 28, 55, .55);
-      padding:8px 10px; border-radius:999px;
-      font-size:12px; color:var(--muted);
-      backdrop-filter: blur(8px);
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-    }
-
     .card{
+      width:100%;
       background: linear-gradient(180deg, var(--panel), var(--panel2));
       border:1px solid var(--stroke);
       border-radius: var(--radius);
@@ -98,50 +76,41 @@
       padding: 16px;
       backdrop-filter: blur(10px);
     }
-    .card h2{
-      margin:0 0 10px;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.2px;
-      display:flex; align-items:center; gap:10px;
-    }
-    .icon{
-      width:30px; height:30px; border-radius:10px;
-      display:grid; place-items:center;
-      background: rgba(124,92,255,.12);
-      border: 1px solid rgba(124,92,255,.25);
-    }
-    .icon.green{ background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.25); }
 
-    .tabs{
-      display:flex; gap:10px;
-      padding:8px;
-      border:1px solid var(--stroke);
-      border-radius: 14px;
-      background: rgba(10, 18, 34, .55);
-      margin-bottom:12px;
+    .brand{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .tab{
-      flex:1;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid transparent;
-      background: transparent;
+    .logo{
+      width:56px; height:56px;
+      border-radius:18px;
+      background: linear-gradient(135deg, rgba(124,92,255,.92), rgba(34,197,94,.62));
+      box-shadow: 0 12px 32px rgba(124,92,255,.22);
+      display:grid; place-items:center;
+      font-weight:900;
+      letter-spacing:.5px;
+      font-size: 24px;
+    }
+    .brand h1{
+      margin:0;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin:0;
       color: var(--muted);
-      font-weight:800;
-      cursor:pointer;
-      transition: .2s ease;
-      display:flex; align-items:center; justify-content:center; gap:8px;
-    }
-    .tab.active{
-      background: rgba(124,92,255,.16);
-      border-color: rgba(124,92,255,.30);
-      color: var(--text);
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
     label{ font-size:12px; color: var(--muted); font-weight:700; }
-    input{
+    input, select{
       width:100%;
       padding:12px 12px;
       border-radius:14px;
@@ -151,12 +120,13 @@
       outline: none;
       transition: .15s ease;
     }
-    input:focus{
+    input:focus, select:focus{
       border-color: rgba(124,92,255,.45);
       box-shadow: 0 0 0 4px rgba(124,92,255,.15);
     }
 
     .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .row > *{ flex: 1; }
 
     .btn{
       border:1px solid var(--stroke);
@@ -169,8 +139,10 @@
       transition:.15s ease;
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:10px;
       user-select:none;
+      width:100%;
     }
     .btn:hover{ transform: translateY(-1px); }
     .btn.primary{
@@ -183,15 +155,16 @@
       border-color: rgba(34,197,94,.35);
       box-shadow: 0 12px 30px rgba(34,197,94,.18);
     }
-    .btn.danger{
-      background: rgba(255,77,109,.12);
-      border-color: rgba(255,77,109,.35);
+    .btn.ghost{
+      background: rgba(0,0,0,.12);
     }
+
     .hint{
       color: var(--muted);
       font-size: 12px;
       margin: 8px 0 0;
       line-height: 1.5;
+      text-align:center;
     }
     .err{
       margin-top: 10px;
@@ -202,9 +175,38 @@
       color:#ffd0d9;
       display:none;
     }
-    .hide{ display:none !important; }
 
-    /* ===== Poker Table (9-max) ===== */
+    .footer{
+      color: rgba(174,190,230,.75);
+      font-size: 12px;
+      text-align:center;
+      margin-top: 10px;
+    }
+
+    /* Rooms list */
+    .rooms{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .roomItem{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(8, 14, 28, .45);
+      border-radius: 14px;
+      padding: 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .roomItem b{ font-weight:900; }
+    .roomMeta{ color: var(--muted); font-size: 12px; }
+
+    /* Stage: table (reuse simple centered) */
+    .tableCard{
+      width: min(1100px, 100%);
+    }
     .tableWrap{
       position:relative;
       border:1px solid var(--stroke);
@@ -217,7 +219,6 @@
       min-height: 600px;
       overflow:hidden;
     }
-
     .felt{
       position:absolute;
       inset: 60px 60px 140px 60px;
@@ -241,6 +242,24 @@
       pointer-events:none;
     }
 
+    .topLine{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 12px;
+    }
+    .pill{
+      border:1px solid var(--stroke);
+      background: rgba(8, 14, 28, .45);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .pill b{ color: var(--text); }
+
     .centerHUD{
       position:absolute;
       left:50%; top: 255px;
@@ -249,35 +268,10 @@
       width:min(560px, calc(100% - 28px));
       z-index: 2;
     }
-
-    .hudRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:center;
-    }
-    .badge{
-      border:1px solid var(--stroke);
-      background: rgba(8, 14, 28, .45);
-      border-radius: 999px;
-      padding: 8px 10px;
-      font-size:12px;
-      color: var(--muted);
-      backdrop-filter: blur(10px);
-    }
-    .badge b{ color: var(--text); }
-
     .communityCards{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:4px;
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;
       min-height: 84px;
     }
-
     .cardFace{
       width:58px; height:78px;
       border-radius: 16px;
@@ -293,7 +287,7 @@
       animation: deal .22s ease-out;
     }
     @keyframes deal{
-      from{ transform: translateY(-10px) scale(.98); opacity:.0; }
+      from{ transform: translateY(-10px) scale(.98); opacity:0; }
       to{ transform: translateY(0) scale(1); opacity:1; }
     }
     .cardFace::after{
@@ -304,18 +298,13 @@
     }
     .cardFace span{ position:relative; z-index:1; }
 
-    .potStack{ display:flex; align-items:center; gap:10px; }
-    .chip{
-      width:24px; height:24px; border-radius:999px;
-      border:2px solid rgba(255,255,255,.18);
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), rgba(124,92,255,.35));
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
-    }
-
     .actionsBar{
-      margin-top: 12px;
       display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      justify-content:center;
+      margin-top: 10px;
+      width:100%;
     }
+    .actionsBar .btn{ width:auto; flex:0 0 auto; }
     .amt{ width:220px; max-width:100%; }
 
     /* Seats */
@@ -329,13 +318,12 @@
       border:1px solid rgba(255,255,255,.10);
       background: rgba(8, 14, 28, .48);
       border-radius: 18px;
-      padding: 10px 10px;
+      padding: 10px;
       box-shadow: 0 16px 45px rgba(0,0,0,.25);
       backdrop-filter: blur(10px);
       overflow:hidden;
       position:relative;
     }
-
     .pTop{
       display:flex; justify-content:space-between; gap:8px; align-items:flex-start;
       margin-bottom: 8px;
@@ -348,15 +336,6 @@
       gap:8px;
       line-height:1.2;
     }
-    .dot{
-      width:9px;height:9px;border-radius:999px;
-      background: rgba(174,187,230,.35);
-      border: 1px solid rgba(174,187,230,.25);
-    }
-    .dot.dealer{ background: rgba(255,176,32,.55); border-color: rgba(255,176,32,.35); }
-    .dot.fold{ background: rgba(255,77,109,.55); border-color: rgba(255,77,109,.35); }
-    .dot.allin{ background: rgba(124,92,255,.65); border-color: rgba(124,92,255,.40); }
-
     .miniBadge{
       font-size:11px;
       padding:6px 8px;
@@ -366,7 +345,6 @@
       color: var(--muted);
       white-space:nowrap;
     }
-
     .blindTag{
       font-size:11px;
       padding:6px 8px;
@@ -380,7 +358,6 @@
       background: rgba(124,92,255,.14);
       color: #e7ddff;
     }
-
     .pMeta{
       display:flex; gap:10px; flex-wrap:wrap;
       font-size:12px; color: var(--muted);
@@ -416,16 +393,16 @@
       box-shadow: 0 10px 25px rgba(0,0,0,.25);
     }
 
-    /* 9-max layout */
-    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 270px; }          /* bottom center */
-    .s1{ right: 26px; bottom: 85px; }                                                  /* bottom-right */
-    .s2{ right: 26px; top: 220px; }                                                    /* right-mid */
-    .s3{ right: 170px; top: 70px; }                                                    /* top-right */
-    .s4{ left:50%; top: 48px; transform: translateX(-50%); }                           /* top center */
-    .s5{ left: 170px; top: 70px; }                                                     /* top-left */
-    .s6{ left: 26px; top: 220px; }                                                     /* left-mid */
-    .s7{ left: 26px; bottom: 85px; }                                                   /* bottom-left */
-    .s8{ left:50%; bottom: 150px; transform: translateX(-50%); }                       /* mid-bottom */
+    /* 9-max seat positions */
+    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 270px; }
+    .s1{ right: 26px; bottom: 85px; }
+    .s2{ right: 26px; top: 220px; }
+    .s3{ right: 170px; top: 70px; }
+    .s4{ left:50%; top: 48px; transform: translateX(-50%); }
+    .s5{ left: 170px; top: 70px; }
+    .s6{ left: 26px; top: 220px; }
+    .s7{ left: 26px; bottom: 85px; }
+    .s8{ left:50%; bottom: 150px; transform: translateX(-50%); }
 
     @media (max-width: 980px){
       .tableWrap{ min-height: 740px; }
@@ -438,151 +415,184 @@
       .s5{ left: 110px; }
     }
 
-    /* ===== Chip fly animation ===== */
-    .flyChip{
-      position: fixed;
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      border: 2px solid rgba(255,255,255,.18);
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), rgba(124,92,255,.35));
-      box-shadow: 0 10px 24px rgba(0,0,0,.28);
-      left: var(--sx);
-      top: var(--sy);
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      animation: fly 520ms cubic-bezier(.2,.8,.2,1) forwards;
-    }
-    @keyframes fly{
-      0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
-      70%  { transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(1.05); opacity: 1; }
-      100% { transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(.7); opacity: 0; }
-    }
+    .hidden{ display:none !important; }
   </style>
 </head>
 
 <body>
   <div class="glow"></div>
 
-  <div class="container">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">♠</div>
-        <div class="title">
-          <h1>Poker Online (Texas Hold’em)</h1>
-          <p>9-max table — SB/BB + chip animation</p>
+  <!-- PAGE: HOME -->
+  <div class="page" id="pageHome">
+    <div class="wrap">
+      <div class="card">
+        <div class="brand">
+          <div class="logo">♠</div>
+          <div>
+            <h1>Poker Online</h1>
+            <p>Texas Hold’em • 9-max • Real-time</p>
+          </div>
         </div>
-      </div>
-      <div class="chipsRow">
-        <div class="tag"><b>Vốn:</b> 2000 token/người</div>
-        <div class="tag"><b>Chip tối thiểu:</b> 5 token</div>
-        <div class="tag"><b>Blinds:</b> SB 10 / BB 20</div>
+
+        <div class="field">
+          <label>Tên người chơi</label>
+          <input id="playerName" placeholder="Ví dụ: Minh / Hùng / Linh..." autocomplete="off"/>
+        </div>
+
+        <div class="row">
+          <button class="btn primary" id="goCreate">➕ Tạo phòng</button>
+          <button class="btn success" id="goFind">🔎 Tìm phòng</button>
+        </div>
+
+        <div class="err" id="homeErr"></div>
+
+        <div class="hint">
+          Vốn: 2000 token/người • Cược bội số 5 token • SB 10 / BB 20
+        </div>
+
+        <div class="footer">Designed by NDTV</div>
       </div>
     </div>
+  </div>
 
-    <div class="grid">
-      <!-- Lobby -->
-      <div class="card" id="joinCard">
-        <div class="tabs">
-          <button class="tab active" id="tabCreate" onclick="setMode('create')">✨ Tạo phòng</button>
-          <button class="tab" id="tabFind" onclick="setMode('find')">🔎 Tìm phòng</button>
-        </div>
-
-        <div id="createPane">
-          <h2><span class="icon">🏠</span> Tạo phòng mới</h2>
-          <div class="field">
-            <label>Tên của bạn</label>
-            <input id="nameCreate" placeholder="Ví dụ: Minh / Hùng / Linh..." autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label>Mã phòng (bạn tự đặt)</label>
-            <input id="roomCreate" placeholder="Ví dụ: team1, poker-friday..." autocomplete="off"/>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="createBtn">🚀 Tạo & vào phòng</button>
-            <button class="btn" onclick="fillRandomRoom()">🎲 Tạo mã ngẫu nhiên</button>
-          </div>
-          <div class="hint">
-            Gợi ý: mã phòng nên ngắn, không dấu. Ví dụ: <b>team1</b>, <b>poker-friday</b>.
+  <!-- PAGE: CREATE ROOM -->
+  <div class="page hidden" id="pageCreate">
+    <div class="wrap">
+      <div class="card">
+        <div class="brand" style="margin-bottom:8px;">
+          <div class="logo">🎲</div>
+          <div>
+            <h1 style="font-size:22px;margin:0;">Tạo phòng</h1>
+            <p style="margin-top:6px;">Tạo phòng mới cho team</p>
           </div>
         </div>
 
-        <div id="findPane" class="hide">
-          <h2><span class="icon green">👥</span> Tìm phòng</h2>
-          <div class="field">
-            <label>Tên của bạn</label>
-            <input id="nameFind" placeholder="Ví dụ: Minh / Hùng / Linh..." autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label>Nhập mã phòng</label>
-            <input id="roomFind" placeholder="Nhập đúng mã phòng host đã tạo..." autocomplete="off"/>
-          </div>
-          <div class="row">
-            <button class="btn success" id="findBtn">✅ Vào phòng</button>
-          </div>
-          <div class="hint">
-            Nếu vào không được, có thể Render đang “sleep”. Hãy refresh 1 lần.
+        <div class="field">
+          <label>Tên phòng</label>
+          <input id="createRoomId" placeholder="Ví dụ: team1, poker-friday..." autocomplete="off"/>
+        </div>
+
+        <div class="field">
+          <label>Số người chơi tối đa</label>
+          <select id="createMaxPlayers">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6" selected>6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <button class="btn ghost" id="backFromCreate">⬅ Quay lại</button>
+          <button class="btn primary" id="createAndGoLobby">✅ Tạo phòng</button>
+        </div>
+
+        <div class="err" id="createErr"></div>
+        <div class="footer">Designed by NDTV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: FIND ROOM -->
+  <div class="page hidden" id="pageFind">
+    <div class="wrap">
+      <div class="card">
+        <div class="brand" style="margin-bottom:8px;">
+          <div class="logo">🔎</div>
+          <div>
+            <h1 style="font-size:22px;margin:0;">Tìm phòng</h1>
+            <p style="margin-top:6px;">Chọn phòng từ danh sách</p>
           </div>
         </div>
 
-        <div class="err" id="err"></div>
+        <button class="btn success" id="refreshRooms">🔄 Tải danh sách phòng</button>
 
-        <div class="hint" style="margin-top:12px">
-          <b>Luật vốn:</b> 2000 token/người. Mọi cược là bội số của <b>5</b> (1 chip = 5 token).<br/>
-          <b>Giới hạn:</b> mỗi phòng tối đa <b>9 người</b>.
+        <div class="rooms" id="roomsList"></div>
+
+        <div class="hint" style="margin-top:10px;">
+          Nếu danh sách trống: có thể server đang sleep, bấm tải lại 1 lần.
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn ghost" id="backFromFind">⬅ Quay lại</button>
+        </div>
+
+        <div class="err" id="findErr"></div>
+        <div class="footer">Designed by NDTV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: LOBBY (WAITING ROOM) -->
+  <div class="page hidden" id="pageLobby">
+    <div class="wrap">
+      <div class="card">
+        <div class="brand" style="margin-bottom:8px;">
+          <div class="logo">🏠</div>
+          <div>
+            <h1 style="font-size:22px;margin:0;">Sảnh chờ</h1>
+            <p style="margin-top:6px;">Phòng: <b id="lobbyRoomLabel"></b></p>
+          </div>
+        </div>
+
+        <div class="hint" id="lobbyInfo" style="margin-top:0; text-align:left;"></div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn ghost" id="leaveLobby">⬅ Rời phòng</button>
+          <button class="btn primary" id="hostStartBtn">▶ Bắt đầu</button>
+        </div>
+
+        <div class="err" id="lobbyErr"></div>
+        <div class="footer">Designed by NDTV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: TABLE -->
+  <div class="page hidden" id="pageTable">
+    <div class="tableCard card">
+      <div class="brand" style="margin-bottom:10px;">
+        <div class="logo">♣</div>
+        <div>
+          <h1 style="font-size:22px;margin:0;">Bàn thi đấu</h1>
+          <p style="margin-top:6px;">Phòng: <b id="tableRoomLabel"></b></p>
         </div>
       </div>
 
-      <!-- Game -->
-      <div class="card hide" id="gameCard">
-        <h2 style="margin:0 0 12px"><span class="icon">🎲</span> Bàn chơi (9-max)</h2>
-
-        <div class="row" style="justify-content:space-between; margin-bottom:12px;">
-          <div class="row" style="gap:8px;">
-            <div class="tag"><b>Phòng:</b> <span id="roomLabel"></span></div>
-            <div class="tag"><b>Vòng:</b> <span id="stage"></span></div>
-            <div class="tag"><b>Pot:</b> <span id="pot"></span> token</div>
-          </div>
-          <button class="btn primary" id="startBtn">▶ Bắt đầu ván</button>
-        </div>
-
-        <div class="tableWrap" id="tableWrap">
-          <div class="felt"></div>
-          <div class="rim"></div>
-
-          <!-- Center HUD -->
-          <div class="centerHUD" id="centerHUD">
-            <div class="hudRow">
-              <div class="badge">Community</div>
-              <div class="badge potStack">
-                <span class="chip"></span><span class="chip"></span><span class="chip"></span>
-                <span><b>Pot:</b> <span id="pot2">0</span></span>
-              </div>
-              <div class="badge"><b>Turn:</b> <span id="turnLabel">-</span></div>
-            </div>
-
-            <div class="communityCards" id="communityCards"></div>
-
-            <div class="actionsBar">
-              <button class="btn danger" onclick="sendAction('fold')">✋ Fold</button>
-              <button class="btn" onclick="sendAction('check')">👀 Check</button>
-              <button class="btn" onclick="sendAction('call')">📥 Call</button>
-              <button class="btn" onclick="sendAction('allin')">🔥 All-in</button>
-              <input class="amt" id="amt" placeholder="Số token (bội số của 5)" />
-              <button class="btn success" onclick="sendAction('bet', getAmt())">💰 Bet</button>
-              <button class="btn primary" onclick="sendAction('raise', getAmt())">⬆ Raise (+)</button>
-            </div>
-
-            <div class="err" id="err2"></div>
-            <div class="hint" style="text-align:center; margin-top:2px">
-              <b>SB/BB</b> sẽ hiển thị cạnh người chịu blind. Chip sẽ bay vào pot khi bet/call.
-            </div>
-          </div>
-
-          <!-- Seats injected -->
-          <div id="seatsLayer"></div>
-        </div>
+      <div class="topLine">
+        <div class="pill"><b>Vòng:</b> <span id="stage"></span></div>
+        <div class="pill"><b>Pot:</b> <span id="pot"></span></div>
+        <div class="pill"><b>Turn:</b> <span id="turnLabel">-</span></div>
       </div>
+
+      <div class="tableWrap" id="tableWrap">
+        <div class="felt"></div>
+        <div class="rim"></div>
+
+        <div class="centerHUD" id="centerHUD">
+          <div class="communityCards" id="communityCards"></div>
+
+          <div class="actionsBar">
+            <button class="btn" style="border-color: rgba(255,77,109,.35); background: rgba(255,77,109,.12);" onclick="sendAction('fold')">✋ Fold</button>
+            <button class="btn ghost" onclick="sendAction('check')">👀 Check</button>
+            <button class="btn ghost" onclick="sendAction('call')">📥 Call</button>
+            <button class="btn ghost" onclick="sendAction('allin')">🔥 All-in</button>
+            <input class="amt" id="amt" placeholder="Số token (bội số 5)" />
+            <button class="btn success" style="max-width:160px;" onclick="sendAction('bet', getAmt())">💰 Bet</button>
+            <button class="btn primary" style="max-width:160px;" onclick="sendAction('raise', getAmt())">⬆ Raise</button>
+          </div>
+
+          <div class="err" id="tableErr"></div>
+        </div>
+
+        <div id="seatsLayer"></div>
+      </div>
+
+      <div class="footer" style="margin-top:12px;">Designed by NDTV</div>
     </div>
   </div>
 
@@ -590,104 +600,193 @@
   <script>
     const socket = io();
 
-    // UI constants
-    const MIN_UNIT = 5;
-
-    let roomId = "";
+    // Local app state
     let myId = "";
-    let mode = "create";
+    let myName = "";
+    let roomId = "";
+    let isHost = false;
     let prevState = null;
 
+    // Helpers
     const $ = (id) => document.getElementById(id);
+    const show = (id) => $(id).classList.remove("hidden");
+    const hide = (id) => $(id).classList.add("hidden");
+    const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    const randRoom = () => "room-" + Math.random().toString(36).slice(2,7);
 
-    function showErr(msg){
-      const el = $("err");
+    function setErr(elId, msg){
+      const el = $(elId);
       if (!msg){ el.style.display="none"; el.textContent=""; return; }
       el.style.display="block";
       el.textContent = msg;
     }
-    function showErr2(msg){
-      const el = $("err2");
-      if (!msg){ el.style.display="none"; el.textContent=""; return; }
-      el.style.display="block";
-      el.textContent = msg;
+
+    function go(page){
+      // hide all
+      ["pageHome","pageCreate","pageFind","pageLobby","pageTable"].forEach(hide);
+      show(page);
+      // clear errors
+      setErr("homeErr","");
+      setErr("createErr","");
+      setErr("findErr","");
+      setErr("lobbyErr","");
+      setErr("tableErr","");
     }
 
-    function setMode(next){
-      mode = next;
-      $("tabCreate").classList.toggle("active", mode==="create");
-      $("tabFind").classList.toggle("active", mode==="find");
-      $("createPane").classList.toggle("hide", mode!=="create");
-      $("findPane").classList.toggle("hide", mode!=="find");
-      showErr("");
+    // Navigation
+    $("goCreate").onclick = () => {
+      myName = $("playerName").value.trim().slice(0,18);
+      if (!myName) return setErr("homeErr","Bạn cần nhập Tên người chơi.");
+      $("createRoomId").value = randRoom();
+      go("pageCreate");
+    };
+    $("goFind").onclick = () => {
+      myName = $("playerName").value.trim().slice(0,18);
+      if (!myName) return setErr("homeErr","Bạn cần nhập Tên người chơi.");
+      go("pageFind");
+      requestRooms();
+    };
+
+    $("backFromCreate").onclick = () => go("pageHome");
+    $("backFromFind").onclick = () => go("pageHome");
+
+    $("refreshRooms").onclick = () => requestRooms();
+
+    $("leaveLobby").onclick = () => {
+      // simplest: reload page to leave socket room cleanly
+      location.reload();
+    };
+
+    // Create room -> join -> lobby
+    $("createAndGoLobby").onclick = () => {
+      const rid = $("createRoomId").value.trim().slice(0,24);
+      const maxPlayers = parseInt($("createMaxPlayers").value || "9", 10);
+
+      if (!rid) return setErr("createErr","Bạn cần nhập tên phòng.");
+      roomId = rid;
+
+      // Ask server to create room with max players (needs server support; fallback ok)
+      socket.emit("createRoom", { roomId, name: myName, maxPlayers });
+
+      // In case server doesn't support createRoom, fallback to join:
+      // (server will ignore unknown event; we then join after short delay)
+      setTimeout(() => {
+        socket.emit("join", { roomId, name: myName });
+      }, 100);
+
+      go("pageLobby");
+      $("lobbyRoomLabel").textContent = roomId;
+    };
+
+    // Find: join chosen room -> lobby
+    function joinRoom(rid){
+      roomId = rid;
+      socket.emit("join", { roomId, name: myName });
+      go("pageLobby");
+      $("lobbyRoomLabel").textContent = roomId;
     }
 
-    function fillRandomRoom(){
-      const random = "team-" + Math.random().toString(36).slice(2, 7);
-      $("roomCreate").value = random;
-    }
-
-    function join(room, name){
-      showErr(""); showErr2("");
-      roomId = (room || "").trim().slice(0, 24);
-      name = (name || "").trim().slice(0, 18);
-      if (!roomId || !name){
-        showErr("Bạn cần nhập đầy đủ Tên và Mã phòng.");
-        return;
-      }
-      socket.emit("join", { roomId, name });
-      $("roomLabel").textContent = roomId;
-    }
-
-    $("createBtn").onclick = () => join($("roomCreate").value, $("nameCreate").value);
-    $("findBtn").onclick   = () => join($("roomFind").value, $("nameFind").value);
-
-    $("startBtn").onclick = () => {
-      showErr2("");
+    // Lobby: start
+    $("hostStartBtn").onclick = () => {
+      if (!roomId) return;
       socket.emit("start", { roomId });
     };
 
     socket.on("connect", () => { myId = socket.id; });
 
     socket.on("errorMsg", (m) => {
-      if (!$("gameCard").classList.contains("hide")) showErr2(m);
-      else showErr(m);
+      // route errors based on current visible page
+      if (!$("pageCreate").classList.contains("hidden")) return setErr("createErr", m);
+      if (!$("pageFind").classList.contains("hidden")) return setErr("findErr", m);
+      if (!$("pageLobby").classList.contains("hidden")) return setErr("lobbyErr", m);
+      if (!$("pageTable").classList.contains("hidden")) return setErr("tableErr", m);
+      setErr("homeErr", m);
     });
 
+    // Rooms list (needs server support)
+    function requestRooms(){
+      $("roomsList").innerHTML = `<div class="hint" style="text-align:left;">Đang tải danh sách phòng...</div>`;
+      socket.emit("listRooms");
+    }
+
+    socket.on("roomsList", (rooms) => {
+      const list = $("roomsList");
+      list.innerHTML = "";
+      if (!rooms || rooms.length === 0){
+        list.innerHTML = `<div class="hint" style="text-align:left;">Chưa có phòng nào. Bạn có thể tạo phòng trước.</div>`;
+        return;
+      }
+
+      rooms.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "roomItem";
+        div.innerHTML = `
+          <div>
+            <div><b>${esc(r.id)}</b></div>
+            <div class="roomMeta">${r.players}/${r.maxPlayers} người • ${r.started ? "Đang chơi" : "Đang chờ"}</div>
+          </div>
+          <div style="width:140px;">
+            <button class="btn success" ${r.started ? "disabled style='opacity:.5;cursor:not-allowed;'" : ""}>Vào</button>
+          </div>
+        `;
+        const btn = div.querySelector("button");
+        btn.onclick = () => {
+          if (r.started) return;
+          joinRoom(r.id);
+        };
+        list.appendChild(div);
+      });
+    });
+
+    // ====== GAME STATE ======
     socket.on("state", (state) => {
-      // Show game
-      $("joinCard").classList.add("hide");
-      $("gameCard").classList.remove("hide");
+      prevState = prevState || state;
 
-      // Animate chips based on diff
-      if (prevState) animateChipDiff(prevState, state);
+      // Determine host: needs server support (state.hostId). If not present, fallback: smallest seat is host.
+      isHost = (state.hostId && state.hostId === myId) || (!state.hostId && state.players?.length && state.players[0].id === myId);
 
+      // If game not started => lobby
+      if (!state.started || state.stage === "lobby"){
+        if ($("pageLobby").classList.contains("hidden")) go("pageLobby");
+        $("lobbyRoomLabel").textContent = state.id;
+        roomId = state.id;
+
+        const players = (state.players || []).slice().sort((a,b)=>a.seat-b.seat);
+        const lines = players.map(p => `• ${esc(p.name)} ${p.id===myId ? "(Bạn)" : ""}`).join("<br/>");
+        $("lobbyInfo").innerHTML =
+          `<b>Người trong phòng:</b><br/>${lines || "(chưa có ai)" }<br/><br/>` +
+          `<b>Trạng thái:</b> ${state.started ? "Đang chơi" : "Đang chờ"}<br/>` +
+          `<b>Host:</b> ${isHost ? "Bạn" : "Người khác"}<br/>`;
+
+        $("hostStartBtn").style.display = isHost ? "inline-flex" : "none";
+        return;
+      }
+
+      // If started => table
+      go("pageTable");
+      $("tableRoomLabel").textContent = state.id;
       $("stage").textContent = state.stage;
       $("pot").textContent = state.pot;
-      $("pot2").textContent = state.pot;
 
       renderCommunity(state.community || []);
       renderSeats(state);
-
-      prevState = state;
     });
 
     function renderCommunity(community){
       const wrap = $("communityCards");
       wrap.innerHTML = "";
       if (!community.length){
-        wrap.innerHTML = "<span class='hint'>Chưa có bài chung</span>";
+        wrap.innerHTML = "<div class='hint'>Chưa có bài chung</div>";
         return;
       }
       community.forEach(c => {
         const el = document.createElement("div");
         el.className = "cardFace";
-        el.innerHTML = "<span>" + escapeHtml(c) + "</span>";
+        el.innerHTML = "<span>" + esc(c) + "</span>";
         wrap.appendChild(el);
       });
     }
 
-    // Compute SB/BB seats from dealerSeat + sorted seats
     function computeBlinds(state){
       const seats = (state.players || []).map(p => p.seat).sort((a,b)=>a-b);
       if (seats.length < 2) return { sbSeat: null, bbSeat: null };
@@ -703,33 +802,20 @@
       layer.innerHTML = "";
 
       const players = (state.players || []).slice().sort((a,b)=>a.seat-b.seat);
+      const visualSlots = ["s0","s1","s2","s3","s4","s5","s6","s7","s8"];
 
-      // turn label
       const turnP = players.find(p => p.seat === state.currentSeat);
       $("turnLabel").textContent = turnP ? turnP.name : "-";
 
-      // 9 visual slots
-      const visualSlots = ["s0","s1","s2","s3","s4","s5","s6","s7","s8"];
-
-      // blinds
       const { sbSeat, bbSeat } = computeBlinds(state);
 
       players.forEach((p, idx) => {
         const slot = visualSlots[idx % visualSlots.length];
-
         const seatDiv = document.createElement("div");
         seatDiv.className = `seat ${slot}` + (p.id===myId ? " me" : "") + (p.seat===state.currentSeat ? " turn" : "") + (p.folded ? " folded" : "");
-        seatDiv.dataset.playerId = p.id;
-        seatDiv.dataset.seat = p.seat;
-
-        let dotClass = "";
-        if (p.folded) dotClass = "fold";
-        else if (p.allIn) dotClass = "allin";
-        else if (p.seat === state.dealerSeat) dotClass = "dealer";
 
         const status = p.folded ? "FOLDED" : (p.allIn ? "ALL-IN" : (p.seat === state.currentSeat ? "ĐẾN LƯỢT" : "CHỜ"));
         const bet = p.betThisRound || 0;
-
         const blindHtml =
           (p.seat === sbSeat) ? `<div class="blindTag">SB</div>` :
           (p.seat === bbSeat) ? `<div class="blindTag bb">BB</div>` : ``;
@@ -738,7 +824,7 @@
           <div class="pBox">
             ${p.seat === state.dealerSeat ? `<div class="dealerBtn">D</div>` : ``}
             <div class="pTop">
-              <div class="pName"><span class="dot ${dotClass}"></span> ${escapeHtml(p.name)} ${p.id===myId ? "(Bạn)" : ""}</div>
+              <div class="pName">${esc(p.name)} ${p.id===myId ? "(Bạn)" : ""}</div>
               <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
                 ${blindHtml}
                 <div class="miniBadge">${status}</div>
@@ -756,69 +842,13 @@
             </div>
           </div>
         `;
-
         layer.appendChild(seatDiv);
       });
     }
 
     function renderHoleCards(cards){
-      if (!cards || !cards.length) return `<span class="hint">Đang chờ ván sau...</span>`;
-      return cards.map(c => `<div class="cardFace"><span>${escapeHtml(c)}</span></div>`).join("");
-    }
-
-    // ===== Chip animation =====
-    function animateChipDiff(prev, next){
-      // only animate when pot increases
-      if (!prev || !next) return;
-
-      const prevById = new Map((prev.players||[]).map(p => [p.id, p]));
-      const nextById = new Map((next.players||[]).map(p => [p.id, p]));
-
-      const potDelta = (next.pot||0) - (prev.pot||0);
-      if (potDelta <= 0) return;
-
-      // Find who increased betThisRound (could be multiple, but usually 1 per action)
-      const contributors = [];
-      for (const [id, np] of nextById.entries()){
-        const pp = prevById.get(id);
-        const d = (np.betThisRound||0) - (pp?.betThisRound||0);
-        if (d > 0) contributors.push({ id, delta: d });
-      }
-      if (contributors.length === 0) return;
-
-      // pick primary contributor (largest delta)
-      contributors.sort((a,b)=>b.delta-a.delta);
-      const main = contributors[0];
-
-      // compute chip count (limit to avoid spam)
-      const chipCount = Math.max(1, Math.min(7, Math.ceil(main.delta / (MIN_UNIT * 6))));
-
-      const fromEl = document.querySelector(`.seat[data-player-id="${cssEscape(main.id)}"]`);
-      const toEl = $("centerHUD");
-      if (!fromEl || !toEl) return;
-
-      const fromRect = fromEl.getBoundingClientRect();
-      const toRect = toEl.getBoundingClientRect();
-
-      const sx = fromRect.left + fromRect.width * 0.5;
-      const sy = fromRect.top + 22; // slightly near top of seat box
-      const tx = toRect.left + toRect.width * 0.5;
-      const ty = toRect.top + 30;
-
-      for (let i=0; i<chipCount; i++){
-        setTimeout(() => flyChip(sx, sy, tx, ty), i * 60);
-      }
-    }
-
-    function flyChip(sx, sy, tx, ty){
-      const el = document.createElement("div");
-      el.className = "flyChip";
-      el.style.setProperty("--sx", sx + "px");
-      el.style.setProperty("--sy", sy + "px");
-      el.style.setProperty("--dx", (tx - sx) + "px");
-      el.style.setProperty("--dy", (ty - sy) + "px");
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 700);
+      if (!cards || !cards.length) return `<span class="hint" style="text-align:left">Đang chờ ván sau...</span>`;
+      return cards.map(c => `<div class="cardFace"><span>${esc(c)}</span></div>`).join("");
     }
 
     function getAmt(){
@@ -826,24 +856,14 @@
       return isNaN(v) ? 0 : v;
     }
 
-    function sendAction(action, amount=0){
-      showErr2("");
+    window.sendAction = function(action, amount=0){
+      setErr("tableErr","");
       if (!roomId) return;
       socket.emit("action", { roomId, action, amount });
     }
 
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, (c) => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-      }[c]));
-    }
-
-    function cssEscape(s){
-      // minimal escape for querySelector
-      return String(s).replace(/["\\]/g, "\\$&");
-    }
-
-    setMode("create");
+    // Start app at HOME
+    go("pageHome");
   </script>
 </body>
 </html>
