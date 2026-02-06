@@ -24,6 +24,13 @@
       --bad:#ff4d6d;
       --shadow: 0 18px 60px rgba(0,0,0,.35);
       --radius: 18px;
+
+      --cardWhite:#f8fbff;
+      --cardEdge:#d6def3;
+      --cardInk:#172342;
+      --cardRed:#e11d48;
+      --cardBack1:#1a2a55;
+      --cardBack2:#0f1b3d;
     }
     *{ box-sizing:border-box; }
     body{
@@ -64,9 +71,7 @@
       padding: 18px 14px;
       gap: 14px;
     }
-    .wrap{
-      width: min(520px, 100%);
-    }
+    .wrap{ width: min(520px, 100%); }
     .card{
       width:100%;
       background: linear-gradient(180deg, var(--panel), var(--panel2));
@@ -155,8 +160,10 @@
       border-color: rgba(34,197,94,.35);
       box-shadow: 0 12px 30px rgba(34,197,94,.18);
     }
-    .btn.ghost{
-      background: rgba(0,0,0,.12);
+    .btn.ghost{ background: rgba(0,0,0,.12); }
+    .btn.danger{
+      background: rgba(255,77,109,.12);
+      border-color: rgba(255,77,109,.35);
     }
 
     .hint{
@@ -175,7 +182,6 @@
       color:#ffd0d9;
       display:none;
     }
-
     .footer{
       color: rgba(174,190,230,.75);
       font-size: 12px;
@@ -184,12 +190,7 @@
     }
 
     /* Rooms list */
-    .rooms{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
+    .rooms{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .roomItem{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(8, 14, 28, .45);
@@ -203,10 +204,8 @@
     .roomItem b{ font-weight:900; }
     .roomMeta{ color: var(--muted); font-size: 12px; }
 
-    /* Stage: table (reuse simple centered) */
-    .tableCard{
-      width: min(1100px, 100%);
-    }
+    /* Table */
+    .tableCard{ width: min(1100px, 100%); }
     .tableWrap{
       position:relative;
       border:1px solid var(--stroke);
@@ -265,41 +264,97 @@
       left:50%; top: 255px;
       transform: translate(-50%, -50%);
       display:flex; flex-direction:column; align-items:center; gap:10px;
-      width:min(560px, calc(100% - 28px));
+      width:min(640px, calc(100% - 28px));
       z-index: 2;
     }
-    .communityCards{
-      display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;
-      min-height: 84px;
-    }
-    .cardFace{
-      width:58px; height:78px;
+
+    /* ✅ REAL PLAYING CARD */
+    .playing-card{
+      width: 64px;
+      height: 90px;
       border-radius: 16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-      display:grid; place-items:center;
-      font-weight:900;
-      letter-spacing:.5px;
-      box-shadow: 0 18px 40px rgba(0,0,0,.28);
-      position:relative;
-      overflow:hidden;
-      transform-origin: center;
-      animation: deal .22s ease-out;
+      background: var(--cardWhite);
+      border: 1px solid var(--cardEdge);
+      box-shadow: 0 18px 38px rgba(0,0,0,.28);
+      position: relative;
+      overflow: hidden;
+      user-select:none;
+      transform-origin:center;
+      animation: deal .20s ease-out;
     }
     @keyframes deal{
-      from{ transform: translateY(-10px) scale(.98); opacity:0; }
+      from{ transform: translateY(-8px) scale(.98); opacity:0; }
       to{ transform: translateY(0) scale(1); opacity:1; }
     }
-    .cardFace::after{
-      content:"";
-      position:absolute; inset:-40%;
-      background: radial-gradient(circle at 30% 30%, rgba(124,92,255,.25), transparent 45%);
-      transform: rotate(20deg);
+    .playing-card .corner{
+      position:absolute;
+      left:8px; top:7px;
+      display:flex; flex-direction:column;
+      align-items:flex-start;
+      gap:2px;
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1;
+      color: var(--cardInk);
+      text-shadow: 0 1px 0 rgba(255,255,255,.35);
     }
-    .cardFace span{ position:relative; z-index:1; }
+    .playing-card .corner.bottom{
+      left:auto; top:auto;
+      right:8px; bottom:7px;
+      transform: rotate(180deg);
+    }
+    .playing-card .rank{ font-size: 16px; }
+    .playing-card .suit{ font-size: 15px; margin-top:-2px; }
+    .playing-card .center{
+      position:absolute;
+      left:50%; top:50%;
+      transform: translate(-50%, -50%);
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--cardInk);
+      opacity: .95;
+    }
+    .playing-card.red .corner,
+    .playing-card.red .center{ color: var(--cardRed); }
+
+    .playing-card.back{
+      background: linear-gradient(135deg, var(--cardBack1), var(--cardBack2));
+      border-color: rgba(255,255,255,.14);
+    }
+    .playing-card.back::before{
+      content:"";
+      position:absolute; inset:10px;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(124,92,255,.35), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(34,197,94,.22), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.16);
+    }
+    .playing-card.back::after{
+      content:"♠";
+      position:absolute;
+      left:50%; top:50%;
+      transform: translate(-50%,-50%);
+      font-size: 28px;
+      color: rgba(255,255,255,.75);
+      text-shadow: 0 10px 28px rgba(0,0,0,.35);
+    }
+
+    .communityCards{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:center;
+      min-height: 96px;
+    }
 
     .actionsBar{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
       justify-content:center;
       margin-top: 10px;
       width:100%;
@@ -310,13 +365,13 @@
     /* Seats */
     .seat{
       position:absolute;
-      width: 220px;
+      width: 240px;
       z-index: 3;
       transition: .15s ease;
     }
     .seat .pBox{
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(8, 14, 28, .48);
+      background: rgba(8, 14, 28, .55);
       border-radius: 18px;
       padding: 10px;
       box-shadow: 0 16px 45px rgba(0,0,0,.25);
@@ -328,14 +383,7 @@
       display:flex; justify-content:space-between; gap:8px; align-items:flex-start;
       margin-bottom: 8px;
     }
-    .pName{
-      font-weight:900;
-      font-size:13px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      line-height:1.2;
-    }
+    .pName{ font-weight:900; font-size:13px; line-height:1.2; }
     .miniBadge{
       font-size:11px;
       padding:6px 8px;
@@ -365,9 +413,12 @@
     }
     .pMeta b{ color: var(--text); }
     .hole{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
     }
-    .hole .cardFace{ width:52px; height:70px; border-radius: 14px; }
+    .hole .playing-card{ width: 58px; height: 82px; border-radius: 16px; }
 
     .seat.me .pBox{
       border-color: rgba(124,92,255,.45);
@@ -394,7 +445,7 @@
     }
 
     /* 9-max seat positions */
-    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 270px; }
+    .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 280px; }
     .s1{ right: 26px; bottom: 85px; }
     .s2{ right: 26px; top: 220px; }
     .s3{ right: 170px; top: 70px; }
@@ -408,7 +459,7 @@
       .tableWrap{ min-height: 740px; }
       .felt{ inset: 66px 24px 170px 24px; }
       .rim{ inset: 52px 16px 150px 16px; }
-      .seat{ width: 210px; }
+      .seat{ width: 220px; }
       .s1,.s2{ right: 10px; }
       .s6,.s7{ left: 10px; }
       .s3{ right: 110px; }
@@ -542,7 +593,7 @@
         <div class="hint" id="lobbyInfo" style="margin-top:0; text-align:left;"></div>
 
         <div class="row" style="margin-top:12px;">
-          <button class="btn ghost" id="leaveLobby">⬅ Rời phòng</button>
+          <button class="btn danger" id="leaveLobby">🚪 Thoát</button>
           <button class="btn primary" id="hostStartBtn">▶ Bắt đầu</button>
         </div>
 
@@ -567,6 +618,8 @@
         <div class="pill"><b>Vòng:</b> <span id="stage"></span></div>
         <div class="pill"><b>Pot:</b> <span id="pot"></span></div>
         <div class="pill"><b>Turn:</b> <span id="turnLabel">-</span></div>
+        <!-- ✅ NEW: Exit button -->
+        <button class="btn danger" id="exitMatchBtn" style="width:auto; padding:10px 12px;">🚪 Thoát trận</button>
       </div>
 
       <div class="tableWrap" id="tableWrap">
@@ -577,13 +630,13 @@
           <div class="communityCards" id="communityCards"></div>
 
           <div class="actionsBar">
-            <button class="btn" style="border-color: rgba(255,77,109,.35); background: rgba(255,77,109,.12);" onclick="sendAction('fold')">✋ Fold</button>
-            <button class="btn ghost" onclick="sendAction('check')">👀 Check</button>
-            <button class="btn ghost" onclick="sendAction('call')">📥 Call</button>
-            <button class="btn ghost" onclick="sendAction('allin')">🔥 All-in</button>
+            <button class="btn danger" style="width:auto;" onclick="sendAction('fold')">✋ Fold</button>
+            <button class="btn ghost" style="width:auto;" onclick="sendAction('check')">👀 Check</button>
+            <button class="btn ghost" style="width:auto;" onclick="sendAction('call')">📥 Call</button>
+            <button class="btn ghost" style="width:auto;" onclick="sendAction('allin')">🔥 All-in</button>
             <input class="amt" id="amt" placeholder="Số token (bội số 5)" />
-            <button class="btn success" style="max-width:160px;" onclick="sendAction('bet', getAmt())">💰 Bet</button>
-            <button class="btn primary" style="max-width:160px;" onclick="sendAction('raise', getAmt())">⬆ Raise</button>
+            <button class="btn success" style="width:auto; max-width:160px;" onclick="sendAction('bet', getAmt())">💰 Bet</button>
+            <button class="btn primary" style="width:auto; max-width:160px;" onclick="sendAction('raise', getAmt())">⬆ Raise</button>
           </div>
 
           <div class="err" id="tableErr"></div>
@@ -605,7 +658,6 @@
     let myName = "";
     let roomId = "";
     let isHost = false;
-    let prevState = null;
 
     // Helpers
     const $ = (id) => document.getElementById(id);
@@ -622,15 +674,38 @@
     }
 
     function go(page){
-      // hide all
       ["pageHome","pageCreate","pageFind","pageLobby","pageTable"].forEach(hide);
       show(page);
-      // clear errors
       setErr("homeErr","");
       setErr("createErr","");
       setErr("findErr","");
       setErr("lobbyErr","");
       setErr("tableErr","");
+    }
+
+    // ====== REAL CARD RENDER ======
+    const suitMap = { s:"♠", h:"♥", d:"♦", c:"♣" };
+    function prettyRank(r){
+      if (r === "T") return "10";
+      return r;
+    }
+    function renderPlayingCard(code){
+      // code like "Td", "2c", or "??"
+      if (!code || code === "??") {
+        return `<div class="playing-card back" aria-label="Hidden card"></div>`;
+      }
+      const r = code.slice(0,1);
+      const s = code.slice(1,2);
+      const suit = suitMap[s] || "?";
+      const rank = prettyRank(r);
+      const isRed = (s === "h" || s === "d");
+      return `
+        <div class="playing-card ${isRed ? "red" : ""}" aria-label="${rank}${suit}">
+          <div class="corner"><div class="rank">${rank}</div><div class="suit">${suit}</div></div>
+          <div class="center">${suit}</div>
+          <div class="corner bottom"><div class="rank">${rank}</div><div class="suit">${suit}</div></div>
+        </div>
+      `;
     }
 
     // Navigation
@@ -649,27 +724,31 @@
 
     $("backFromCreate").onclick = () => go("pageHome");
     $("backFromFind").onclick = () => go("pageHome");
-
     $("refreshRooms").onclick = () => requestRooms();
 
+    // Leave (Lobby)
     $("leaveLobby").onclick = () => {
-      // simplest: reload page to leave socket room cleanly
-      location.reload();
+      if (roomId) socket.emit("leaveRoom", { roomId });
+      roomId = "";
+      go("pageHome");
+    };
+
+    // ✅ Exit match
+    $("exitMatchBtn").onclick = () => {
+      if (roomId) socket.emit("leaveRoom", { roomId });
+      roomId = "";
+      go("pageHome");
     };
 
     // Create room -> join -> lobby
     $("createAndGoLobby").onclick = () => {
       const rid = $("createRoomId").value.trim().slice(0,24);
       const maxPlayers = parseInt($("createMaxPlayers").value || "9", 10);
-
       if (!rid) return setErr("createErr","Bạn cần nhập tên phòng.");
       roomId = rid;
 
-      // Ask server to create room with max players (needs server support; fallback ok)
       socket.emit("createRoom", { roomId, name: myName, maxPlayers });
 
-      // In case server doesn't support createRoom, fallback to join:
-      // (server will ignore unknown event; we then join after short delay)
       setTimeout(() => {
         socket.emit("join", { roomId, name: myName });
       }, 100);
@@ -695,7 +774,6 @@
     socket.on("connect", () => { myId = socket.id; });
 
     socket.on("errorMsg", (m) => {
-      // route errors based on current visible page
       if (!$("pageCreate").classList.contains("hidden")) return setErr("createErr", m);
       if (!$("pageFind").classList.contains("hidden")) return setErr("findErr", m);
       if (!$("pageLobby").classList.contains("hidden")) return setErr("lobbyErr", m);
@@ -703,7 +781,7 @@
       setErr("homeErr", m);
     });
 
-    // Rooms list (needs server support)
+    // Rooms list
     function requestRooms(){
       $("roomsList").innerHTML = `<div class="hint" style="text-align:left;">Đang tải danh sách phòng...</div>`;
       socket.emit("listRooms");
@@ -740,12 +818,10 @@
 
     // ====== GAME STATE ======
     socket.on("state", (state) => {
-      prevState = prevState || state;
-
-      // Determine host: needs server support (state.hostId). If not present, fallback: smallest seat is host.
+      // Host detection
       isHost = (state.hostId && state.hostId === myId) || (!state.hostId && state.players?.length && state.players[0].id === myId);
 
-      // If game not started => lobby
+      // Lobby
       if (!state.started || state.stage === "lobby"){
         if ($("pageLobby").classList.contains("hidden")) go("pageLobby");
         $("lobbyRoomLabel").textContent = state.id;
@@ -754,7 +830,7 @@
         const players = (state.players || []).slice().sort((a,b)=>a.seat-b.seat);
         const lines = players.map(p => `• ${esc(p.name)} ${p.id===myId ? "(Bạn)" : ""}`).join("<br/>");
         $("lobbyInfo").innerHTML =
-          `<b>Người trong phòng:</b><br/>${lines || "(chưa có ai)" }<br/><br/>` +
+          `<b>Người trong phòng:</b><br/>${lines || "(chưa có ai)"}<br/><br/>` +
           `<b>Trạng thái:</b> ${state.started ? "Đang chơi" : "Đang chờ"}<br/>` +
           `<b>Host:</b> ${isHost ? "Bạn" : "Người khác"}<br/>`;
 
@@ -762,9 +838,11 @@
         return;
       }
 
-      // If started => table
+      // Table
       go("pageTable");
       $("tableRoomLabel").textContent = state.id;
+      roomId = state.id;
+
       $("stage").textContent = state.stage;
       $("pot").textContent = state.pot;
 
@@ -781,9 +859,8 @@
       }
       community.forEach(c => {
         const el = document.createElement("div");
-        el.className = "cardFace";
-        el.innerHTML = "<span>" + esc(c) + "</span>";
-        wrap.appendChild(el);
+        el.innerHTML = renderPlayingCard(c);
+        wrap.appendChild(el.firstElementChild);
       });
     }
 
@@ -820,6 +897,10 @@
           (p.seat === sbSeat) ? `<div class="blindTag">SB</div>` :
           (p.seat === bbSeat) ? `<div class="blindTag bb">BB</div>` : ``;
 
+        const holeHtml = (p.cards && p.cards.length)
+          ? p.cards.map(c => renderPlayingCard(c)).join("")
+          : `<span class="hint" style="text-align:left;">Đang chờ ván sau...</span>`;
+
         seatDiv.innerHTML = `
           <div class="pBox">
             ${p.seat === state.dealerSeat ? `<div class="dealerBtn">D</div>` : ``}
@@ -837,18 +918,11 @@
               <div>Seat: <b>${p.seat}</b></div>
             </div>
 
-            <div class="hole">
-              ${renderHoleCards(p.cards)}
-            </div>
+            <div class="hole">${holeHtml}</div>
           </div>
         `;
         layer.appendChild(seatDiv);
       });
-    }
-
-    function renderHoleCards(cards){
-      if (!cards || !cards.length) return `<span class="hint" style="text-align:left">Đang chờ ván sau...</span>`;
-      return cards.map(c => `<div class="cardFace"><span>${esc(c)}</span></div>`).join("");
     }
 
     function getAmt(){
@@ -862,7 +936,6 @@
       socket.emit("action", { roomId, action, amount });
     }
 
-    // Start app at HOME
     go("pageHome");
   </script>
 </body>
