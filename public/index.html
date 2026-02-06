@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Poker Online (Team)</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 980px; margin: 18px auto; padding: 0 12px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    input, button { padding: 10px; font-size: 14px; }
+    button { cursor: pointer; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 10px 0; }
+    .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+    .me { border-color: #333; }
+    .turn { outline: 2px solid #333; }
+    .muted { opacity: .65; }
+    .chips { font-weight: bold; }
+    .community { font-size: 18px; letter-spacing: 1px; }
+    .err { color: #b00020; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <h2>Poker Online (Texas Hold’em)</h2>
+  <div class="card" id="joinCard">
+    <div class="row">
+      <input id="roomId" placeholder="Mã phòng (vd: team1)" />
+      <input id="name" placeholder="Tên của bạn" />
+      <button id="joinBtn">Vào phòng</button>
+    </div>
+    <p><small>Luật vốn: mỗi người 2000 token. Mọi cược là bội số của 5 token (1 chip = 5 token).</small></p>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card" id="gameCard" style="display:none;">
+    <div class="row">
+      <div><b>Phòng:</b> <span id="roomLabel"></span></div>
+      <div><b>Vòng:</b> <span id="stage"></span></div>
+      <div><b>Pot:</b> <span id="pot"></span> token</div>
+      <button id="startBtn">Bắt đầu ván</button>
+    </div>
+    <p class="community"><b>Community:</b> <span id="community">-</span></p>
+
+    <div class="card">
+      <div class="row">
+        <button onclick="sendAction('fold')">Fold</button>
+        <button onclick="sendAction('check')">Check</button>
+        <button onclick="sendAction('call')">Call</button>
+        <button onclick="sendAction('allin')">All-in</button>
+        <input id="amt" placeholder="Số token (bội số của 5)" style="width:220px;">
+        <button onclick="sendAction('bet', getAmt())">Bet</button>
+        <button onclick="sendAction('raise', getAmt())">Raise (+)</button>
+      </div>
+      <p><small>Gợi ý: Bet dùng khi chưa ai bet. Raise là “tăng thêm” ngoài phần Call.</small></p>
+      <div class="err" id="err2"></div>
+    </div>
+
+    <h3>Players</h3>
+    <div class="players" id="players"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    let roomId = "";
+    let myId = "";
+    let lastState = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function setErr(msg) { $("err").textContent = msg || ""; }
+    function setErr2(msg) { $("err2").textContent = msg || ""; }
+
+    $("joinBtn").onclick = () => {
+      setErr("");
+      roomId = $("roomId").value.trim();
+      const name = $("name").value.trim();
+      socket.emit("join", { roomId, name });
+      $("roomLabel").textContent = roomId;
+    };
+
+    $("startBtn").onclick = () => {
+      setErr2("");
+      socket.emit("start", { roomId });
+    };
+
+    socket.on("connect", () => {
+      myId = socket.id;
+    });
+
+    socket.on("errorMsg", (m) => {
+      setErr(m);
+      setErr2(m);
+    });
+
+    socket.on("state", (state) => {
+      lastState = state;
+      $("joinCard").style.display = "none";
+      $("gameCard").style.display = "block";
+
+      $("stage").textContent = state.stage;
+      $("pot").textContent = state.pot;
+      $("community").textContent = state.community.length ? state.community.join(" ") : "-";
+
+      renderPlayers(state);
+    });
+
+    function renderPlayers(state) {
+      const wrap = $("players");
+      wrap.innerHTML = "";
+
+      state.players.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "card " + (p.id === myId ? "me" : "") + (p.seat === state.currentSeat ? " turn" : "");
+        const status = p.folded ? " (FOLDED)" : (p.allIn ? " (ALL-IN)" : "");
+        const bet = p.betThisRound ? ` | Bet: ${p.betThisRound}` : "";
+        div.innerHTML = `
+          <div><b>${escapeHtml(p.name)}</b>${status}</div>
+          <div class="chips">Token: ${p.tokens}${bet}</div>
+          <div>Cards: <b>${p.cards.length ? p.cards.join(" ") : "-"}</b></div>
+          <div><small>Seat: ${p.seat}${p.seat === state.dealerSeat ? " | Dealer" : ""}</small></div>
+        `;
+        if (p.folded) div.classList.add("muted");
+        wrap.appendChild(div);
+      });
+    }
+
+    function getAmt() {
+      const v = parseInt($("amt").value || "0", 10);
+      return isNaN(v) ? 0 : v;
+    }
+
+    function sendAction(action, amount=0) {
+      setErr2("");
+      if (!roomId) return;
+      socket.emit("action", { roomId, action, amount });
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[c]));
+    }
+  </script>
+</body>
+</html>
