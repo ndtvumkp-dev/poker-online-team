@@ -1,62 +1,573 @@
 <!doctype html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Poker Online (Team)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Poker Online (Texas Hold’em)</title>
+
+  <!-- Google font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; max-width: 980px; margin: 18px auto; padding: 0 12px; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    input, button { padding: 10px; font-size: 14px; }
-    button { cursor: pointer; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 10px 0; }
-    .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
-    .me { border-color: #333; }
-    .turn { outline: 2px solid #333; }
-    .muted { opacity: .65; }
-    .chips { font-weight: bold; }
-    .community { font-size: 18px; letter-spacing: 1px; }
-    .err { color: #b00020; }
-    small { color: #666; }
+    :root{
+      --bg1:#0b1220;
+      --bg2:#0f1a33;
+      --card:#0f1b30cc;
+      --card2:#101e38cc;
+      --stroke:#223152;
+      --text:#e8eeff;
+      --muted:#aebbe6;
+      --accent:#7c5cff;
+      --accent2:#22c55e;
+      --danger:#ff4d6d;
+      --warn:#ffb020;
+      --chip:#0b1326;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% 10%, rgba(124,92,255,.22), transparent 55%),
+        radial-gradient(900px 650px at 90% 20%, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(900px 650px at 40% 90%, rgba(255,176,32,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* subtle animated glow dots */
+    .glow{
+      position:fixed;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(124,92,255,.18), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(34,197,94,.14), transparent 35%),
+        radial-gradient(circle at 70% 80%, rgba(255,176,32,.10), transparent 40%);
+      filter: blur(40px);
+      animation: float 10s ease-in-out infinite alternate;
+      pointer-events:none;
+      z-index:-1;
+    }
+    @keyframes float{
+      from{ transform: translate3d(-1%, -1%, 0) scale(1.02); }
+      to{ transform: translate3d(1%, 1%, 0) scale(1.06); }
+    }
+
+    .container{
+      max-width: 1100px;
+      margin: 26px auto;
+      padding: 0 14px 28px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .logo{
+      width:44px; height:44px;
+      border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,92,255,.9), rgba(34,197,94,.6));
+      box-shadow: 0 10px 30px rgba(124,92,255,.25);
+      display:grid; place-items:center;
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+
+    .title h1{
+      font-size:18px;
+      margin:0;
+      line-height:1.1;
+      font-weight:800;
+    }
+    .title p{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .pill{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .tag{
+      border:1px solid var(--stroke);
+      background: rgba(17, 30, 56, .55);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      backdrop-filter: blur(8px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:14px;
+      letter-spacing:.2px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .icon{
+      width:30px;height:30px;border-radius:10px;
+      display:grid; place-items:center;
+      background: rgba(124,92,255,.12);
+      border: 1px solid rgba(124,92,255,.25);
+    }
+    .icon.green{
+      background: rgba(34,197,94,.12);
+      border-color: rgba(34,197,94,.25);
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      padding:8px;
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      background: rgba(10, 18, 34, .55);
+      margin-bottom:12px;
+    }
+    .tab{
+      flex:1;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-weight:700;
+      cursor:pointer;
+      transition: .2s ease;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .tab.active{
+      background: rgba(124,92,255,.16);
+      border-color: rgba(124,92,255,.30);
+      color: var(--text);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .field{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:10px;
+    }
+    label{
+      font-size:12px;
+      color: var(--muted);
+      font-weight:600;
+    }
+    input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(8, 14, 28, .55);
+      color: var(--text);
+      outline: none;
+      transition: .15s ease;
+    }
+    input:focus{
+      border-color: rgba(124,92,255,.45);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.15);
+    }
+
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(17, 30, 56, .65);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(124,92,255,.55));
+      border-color: rgba(124,92,255,.35);
+      box-shadow: 0 12px 30px rgba(124,92,255,.20);
+    }
+    .btn.success{
+      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(34,197,94,.55));
+      border-color: rgba(34,197,94,.35);
+      box-shadow: 0 12px 30px rgba(34,197,94,.18);
+    }
+    .btn.danger{
+      background: rgba(255,77,109,.12);
+      border-color: rgba(255,77,109,.35);
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 0;
+      line-height: 1.5;
+    }
+
+    .err{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,77,109,.30);
+      background: rgba(255,77,109,.10);
+      color:#ffd0d9;
+      display:none;
+    }
+
+    /* Game area */
+    .gameHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .statline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .stat{
+      border:1px solid var(--stroke);
+      background: rgba(8, 14, 28, .45);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .stat b{ color: var(--text); }
+
+    .table{
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(900px 360px at 50% 30%, rgba(34,197,94,.16), rgba(8, 14, 28, .45) 65%),
+        linear-gradient(180deg, rgba(12, 22, 44, .55), rgba(8, 14, 28, .35));
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      margin-bottom: 12px;
+    }
+
+    .community{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .communityLeft{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .badge{
+      border:1px solid var(--stroke);
+      background: rgba(8, 14, 28, .45);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size:12px;
+      color: var(--muted);
+    }
+
+    .cards{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .cardFace{
+      width:54px; height:74px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      display:grid; place-items:center;
+      font-weight:900;
+      letter-spacing:.5px;
+      box-shadow: 0 16px 35px rgba(0,0,0,.25);
+      position:relative;
+      overflow:hidden;
+    }
+    .cardFace::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(124,92,255,.25), transparent 45%);
+      transform: rotate(20deg);
+    }
+    .cardFace span{ position:relative; z-index:1; }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .amt{
+      width:220px;
+      max-width:100%;
+    }
+
+    .players{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .pCard{
+      border:1px solid var(--stroke);
+      background: rgba(8, 14, 28, .45);
+      border-radius: var(--radius);
+      padding: 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .pCard.me{
+      border-color: rgba(124,92,255,.45);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.10);
+    }
+    .pCard.turn{
+      outline: 2px solid rgba(34,197,94,.65);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.10);
+    }
+    .pTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .pName{
+      font-weight:900;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .dot{
+      width:9px;height:9px;border-radius:999px;
+      background: rgba(174,187,230,.35);
+      border: 1px solid rgba(174,187,230,.25);
+    }
+    .dot.dealer{ background: rgba(255,176,32,.45); border-color: rgba(255,176,32,.35); }
+    .dot.fold{ background: rgba(255,77,109,.45); border-color: rgba(255,77,109,.35); }
+    .dot.allin{ background: rgba(124,92,255,.55); border-color: rgba(124,92,255,.40); }
+
+    .pMeta{
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .pChips{
+      font-weight:900;
+      color: var(--text);
+    }
+
+    .muted{ opacity:.65; }
+
+    .footerNote{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .hide{ display:none !important; }
   </style>
 </head>
+
 <body>
-  <h2>Poker Online (Texas Hold’em)</h2>
-  <div class="card" id="joinCard">
-    <div class="row">
-      <input id="roomId" placeholder="Mã phòng (vd: team1)" />
-      <input id="name" placeholder="Tên của bạn" />
-      <button id="joinBtn">Vào phòng</button>
-    </div>
-    <p><small>Luật vốn: mỗi người 2000 token. Mọi cược là bội số của 5 token (1 chip = 5 token).</small></p>
-    <div class="err" id="err"></div>
-  </div>
+  <div class="glow"></div>
 
-  <div class="card" id="gameCard" style="display:none;">
-    <div class="row">
-      <div><b>Phòng:</b> <span id="roomLabel"></span></div>
-      <div><b>Vòng:</b> <span id="stage"></span></div>
-      <div><b>Pot:</b> <span id="pot"></span> token</div>
-      <button id="startBtn">Bắt đầu ván</button>
-    </div>
-    <p class="community"><b>Community:</b> <span id="community">-</span></p>
-
-    <div class="card">
-      <div class="row">
-        <button onclick="sendAction('fold')">Fold</button>
-        <button onclick="sendAction('check')">Check</button>
-        <button onclick="sendAction('call')">Call</button>
-        <button onclick="sendAction('allin')">All-in</button>
-        <input id="amt" placeholder="Số token (bội số của 5)" style="width:220px;">
-        <button onclick="sendAction('bet', getAmt())">Bet</button>
-        <button onclick="sendAction('raise', getAmt())">Raise (+)</button>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">♠</div>
+        <div class="title">
+          <h1>Poker Online (Texas Hold’em)</h1>
+          <p>Chơi nội bộ team — nhanh gọn, real-time, hỗ trợ mobile</p>
+        </div>
       </div>
-      <p><small>Gợi ý: Bet dùng khi chưa ai bet. Raise là “tăng thêm” ngoài phần Call.</small></p>
-      <div class="err" id="err2"></div>
+      <div class="pill">
+        <div class="tag"><b>Vốn:</b> 2000 token/người</div>
+        <div class="tag"><b>Chip tối thiểu:</b> 5 token</div>
+        <div class="tag"><b>Blinds:</b> SB 10 / BB 20</div>
+      </div>
     </div>
 
-    <h3>Players</h3>
-    <div class="players" id="players"></div>
+    <div class="grid">
+      <!-- LEFT: Lobby / Join -->
+      <div class="card" id="joinCard">
+        <div class="tabs">
+          <button class="tab active" id="tabCreate" onclick="setMode('create')">✨ Tạo phòng</button>
+          <button class="tab" id="tabFind" onclick="setMode('find')">🔎 Tìm phòng</button>
+        </div>
+
+        <!-- Create room -->
+        <div id="createPane">
+          <h2><span class="icon">🏠</span> Tạo phòng mới</h2>
+          <div class="field">
+            <label>Điền tên của bạn</label>
+            <input id="nameCreate" placeholder="Ví dụ: Minh / Hùng / Linh..." autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Mã phòng (bạn tự đặt)</label>
+            <input id="roomCreate" placeholder="Ví dụ: team1, poker-friday..." autocomplete="off"/>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="createBtn">🚀 Tạo & vào phòng</button>
+            <button class="btn" onclick="fillRandomRoom()">🎲 Tạo mã ngẫu nhiên</button>
+          </div>
+
+          <div class="hint">
+            Gợi ý: Mã phòng nên ngắn, không dấu. Ví dụ: <b>team1</b>, <b>poker-friday</b>.
+          </div>
+        </div>
+
+        <!-- Find room -->
+        <div id="findPane" class="hide">
+          <h2><span class="icon green">👥</span> Tìm phòng có sẵn</h2>
+          <div class="field">
+            <label>Điền tên của bạn</label>
+            <input id="nameFind" placeholder="Ví dụ: Minh / Hùng / Linh..." autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Nhập mã phòng để vào</label>
+            <input id="roomFind" placeholder="Nhập đúng mã phòng host đã tạo..." autocomplete="off"/>
+          </div>
+
+          <div class="row">
+            <button class="btn success" id="findBtn">✅ Vào phòng</button>
+          </div>
+
+          <div class="hint">
+            Nếu vào không được, có thể host chưa mở link / Render đang “sleep”. Hãy thử refresh lại 1 lần.
+          </div>
+        </div>
+
+        <div class="err" id="err"></div>
+
+        <div class="footerNote">
+          <b>Luật vốn:</b> mỗi người 2000 token. Mọi cược là bội số của 5 token (1 chip = 5 token).<br/>
+          <b>Mẹo:</b> khi chơi trên Render Free, mở link trước 30–60s để server “thức dậy”.
+        </div>
+      </div>
+
+      <!-- RIGHT: Quick info / mini guide -->
+      <div class="card" id="infoCard">
+        <h2><span class="icon">📌</span> Hướng dẫn nhanh</h2>
+        <div class="hint" style="margin-top:0">
+          <b>1)</b> Host tạo phòng → gửi <b>mã phòng</b> cho cả team.<br/>
+          <b>2)</b> Mọi người chọn “Tìm phòng” → nhập tên + mã → vào chơi.<br/><br/>
+          <b>Thao tác cược:</b><br/>
+          • <b>Check</b> khi chưa bị bet<br/>
+          • <b>Call</b> để theo mức bet hiện tại<br/>
+          • <b>Bet</b> chỉ khi chưa ai bet<br/>
+          • <b>Raise</b> là tăng thêm so với Call<br/>
+          • <b>All-in</b> cược toàn bộ token
+        </div>
+
+        <div class="hint" style="margin-top:12px">
+          <b>Lưu ý:</b> Ở bản MVP, bạn mới vào giữa ván sẽ được “đứng xem” và vào ván sau.
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME -->
+    <div class="card hide" id="gameCard" style="margin-top:14px;">
+      <div class="gameHeader">
+        <div class="statline">
+          <div class="stat"><b>Phòng:</b> <span id="roomLabel"></span></div>
+          <div class="stat"><b>Vòng:</b> <span id="stage"></span></div>
+          <div class="stat"><b>Pot:</b> <span id="pot"></span> token</div>
+        </div>
+        <button class="btn primary" id="startBtn">▶ Bắt đầu ván</button>
+      </div>
+
+      <div class="table">
+        <div class="community">
+          <div class="communityLeft">
+            <div class="badge">Community cards</div>
+            <div class="cards" id="communityCards"></div>
+          </div>
+          <div class="badge">Bạn đang chơi real-time</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="actions">
+            <button class="btn danger" onclick="sendAction('fold')">✋ Fold</button>
+            <button class="btn" onclick="sendAction('check')">👀 Check</button>
+            <button class="btn" onclick="sendAction('call')">📥 Call</button>
+            <button class="btn" onclick="sendAction('allin')">🔥 All-in</button>
+            <input class="amt" id="amt" placeholder="Số token (bội số của 5)" />
+            <button class="btn success" onclick="sendAction('bet', getAmt())">💰 Bet</button>
+            <button class="btn primary" onclick="sendAction('raise', getAmt())">⬆ Raise (+)</button>
+          </div>
+          <div class="err" id="err2"></div>
+          <div class="hint">
+            Gợi ý: <b>Bet</b> dùng khi chưa ai bet. <b>Raise</b> là “tăng thêm” ngoài phần Call.
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:0"><span class="icon">🧑‍🤝‍🧑</span> Người chơi</h2>
+      <div class="players" id="players"></div>
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -65,83 +576,161 @@
 
     let roomId = "";
     let myId = "";
+    let mode = "create"; // create | find
     let lastState = null;
 
     const $ = (id) => document.getElementById(id);
 
-    function setErr(msg) { $("err").textContent = msg || ""; }
-    function setErr2(msg) { $("err2").textContent = msg || ""; }
+    function showErr(msg){
+      const el = $("err");
+      if (!msg){ el.style.display="none"; el.textContent=""; return; }
+      el.style.display="block";
+      el.textContent = msg;
+    }
+    function showErr2(msg){
+      const el = $("err2");
+      if (!msg){ el.style.display="none"; el.textContent=""; return; }
+      el.style.display="block";
+      el.textContent = msg;
+    }
 
-    $("joinBtn").onclick = () => {
-      setErr("");
-      roomId = $("roomId").value.trim();
-      const name = $("name").value.trim();
+    function setMode(next){
+      mode = next;
+      $("tabCreate").classList.toggle("active", mode==="create");
+      $("tabFind").classList.toggle("active", mode==="find");
+      $("createPane").classList.toggle("hide", mode!=="create");
+      $("findPane").classList.toggle("hide", mode!=="find");
+      showErr("");
+    }
+
+    function fillRandomRoom(){
+      const random = "team-" + Math.random().toString(36).slice(2, 7);
+      $("roomCreate").value = random;
+    }
+
+    function join(room, name){
+      showErr("");
+      showErr2("");
+      roomId = (room || "").trim().slice(0, 24);
+      name = (name || "").trim().slice(0, 18);
+
+      if (!roomId || !name){
+        showErr("Bạn cần nhập đầy đủ Tên và Mã phòng.");
+        return;
+      }
       socket.emit("join", { roomId, name });
       $("roomLabel").textContent = roomId;
-    };
+    }
+
+    $("createBtn").onclick = () => join($("roomCreate").value, $("nameCreate").value);
+    $("findBtn").onclick   = () => join($("roomFind").value, $("nameFind").value);
 
     $("startBtn").onclick = () => {
-      setErr2("");
+      showErr2("");
       socket.emit("start", { roomId });
     };
 
-    socket.on("connect", () => {
-      myId = socket.id;
-    });
+    socket.on("connect", () => { myId = socket.id; });
 
     socket.on("errorMsg", (m) => {
-      setErr(m);
-      setErr2(m);
+      // nếu đang ở game thì show err2, còn lobby thì show err
+      if (!$("gameCard").classList.contains("hide")) showErr2(m);
+      else showErr(m);
     });
 
     socket.on("state", (state) => {
       lastState = state;
-      $("joinCard").style.display = "none";
-      $("gameCard").style.display = "block";
+
+      // chuyển UI sang game khi có state
+      $("joinCard").classList.add("hide");
+      $("infoCard").classList.add("hide");
+      $("gameCard").classList.remove("hide");
 
       $("stage").textContent = state.stage;
       $("pot").textContent = state.pot;
-      $("community").textContent = state.community.length ? state.community.join(" ") : "-";
 
+      renderCommunity(state.community || []);
       renderPlayers(state);
     });
 
-    function renderPlayers(state) {
+    function renderCommunity(community){
+      const wrap = $("communityCards");
+      wrap.innerHTML = "";
+      if (!community.length){
+        wrap.innerHTML = "<span class='hint'>Chưa có bài chung</span>";
+        return;
+      }
+      community.forEach(c => {
+        const el = document.createElement("div");
+        el.className = "cardFace";
+        el.innerHTML = "<span>" + escapeHtml(c) + "</span>";
+        wrap.appendChild(el);
+      });
+    }
+
+    function renderPlayers(state){
       const wrap = $("players");
       wrap.innerHTML = "";
 
       state.players.forEach(p => {
         const div = document.createElement("div");
-        div.className = "card " + (p.id === myId ? "me" : "") + (p.seat === state.currentSeat ? " turn" : "");
-        const status = p.folded ? " (FOLDED)" : (p.allIn ? " (ALL-IN)" : "");
-        const bet = p.betThisRound ? ` | Bet: ${p.betThisRound}` : "";
-        div.innerHTML = `
-          <div><b>${escapeHtml(p.name)}</b>${status}</div>
-          <div class="chips">Token: ${p.tokens}${bet}</div>
-          <div>Cards: <b>${p.cards.length ? p.cards.join(" ") : "-"}</b></div>
-          <div><small>Seat: ${p.seat}${p.seat === state.dealerSeat ? " | Dealer" : ""}</small></div>
-        `;
+        div.className = "pCard";
+        if (p.id === myId) div.classList.add("me");
+        if (p.seat === state.currentSeat) div.classList.add("turn");
         if (p.folded) div.classList.add("muted");
+
+        let dotClass = "";
+        if (p.folded) dotClass = "fold";
+        else if (p.allIn) dotClass = "allin";
+        else if (p.seat === state.dealerSeat) dotClass = "dealer";
+
+        const status = p.folded ? "FOLDED" : (p.allIn ? "ALL-IN" : (p.seat === state.currentSeat ? "ĐANG ĐẾN LƯỢT" : "ĐANG CHỜ"));
+        const bet = p.betThisRound ? `Bet: <b>${p.betThisRound}</b>` : "Bet: <b>0</b>";
+
+        div.innerHTML = `
+          <div class="pTop">
+            <div class="pName"><span class="dot ${dotClass}"></span> ${escapeHtml(p.name)} ${p.id===myId ? "(Bạn)" : ""}</div>
+            <div class="badge">${status}</div>
+          </div>
+
+          <div class="pMeta">
+            <div class="pChips">Token: ${p.tokens}</div>
+            <div>${bet}</div>
+            <div>Seat: <b>${p.seat}</b>${p.seat === state.dealerSeat ? " • Dealer" : ""}</div>
+          </div>
+
+          <div class="cards">
+            ${renderHoleCards(p.cards)}
+          </div>
+        `;
         wrap.appendChild(div);
       });
     }
 
-    function getAmt() {
+    function renderHoleCards(cards){
+      if (!cards || !cards.length) return `<span class="hint">Đang chờ ván sau...</span>`;
+      return cards.map(c => `<div class="cardFace"><span>${escapeHtml(c)}</span></div>`).join("");
+    }
+
+    function getAmt(){
       const v = parseInt($("amt").value || "0", 10);
       return isNaN(v) ? 0 : v;
     }
 
-    function sendAction(action, amount=0) {
-      setErr2("");
+    function sendAction(action, amount=0){
+      showErr2("");
       if (!roomId) return;
       socket.emit("action", { roomId, action, amount });
     }
 
-    function escapeHtml(s) {
-      return s.replace(/[&<>"']/g, (c) => ({
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, (c) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
       }[c]));
     }
+
+    // default mode
+    setMode("create");
   </script>
 </body>
 </html>
