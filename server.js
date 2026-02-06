@@ -1,7 +1,8 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { Hand } from "pokersolver";
+import pkg from "pokersolver";
+const { Hand } = pkg;
 
 const app = express();
 const server = http.createServer(app);
