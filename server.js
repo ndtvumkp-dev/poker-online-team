@@ -21,6 +21,9 @@ const SB = 10;
 const BB = 20;
 const MAX_PLAYERS = 9;
 
+// thời gian hiển thị kết quả trước khi vào ván mới
+const RESULT_DELAY_MS = 6000;
+
 // ====== STATE ======
 const rooms = new Map();
 
@@ -58,7 +61,8 @@ function getRoom(roomId) {
       currentSeat: 0,
       highestBet: 0,
       lastAggressorSeat: null,
-      handId: 0
+      handId: 0,
+      lastResult: null,   // ✅ NEW: kết quả ván trước
     });
   }
   return rooms.get(roomId);
@@ -92,7 +96,8 @@ function publicState(room, viewerId = null) {
     dealerSeat: room.dealerSeat,
     currentSeat: room.currentSeat,
     highestBet: room.highestBet,
-    players
+    players,
+    lastResult: room.lastResult, // ✅ NEW
   };
 }
 
@@ -150,10 +155,40 @@ function takeFromPlayer(room, player, amount) {
   return canPay;
 }
 
+function buildResultPayload({
+  room,
+  type,            // "fold" | "showdown"
+  winners,         // array of player objects
+  handDescs = {},  // map socketId -> descr
+  pot,
+  shares,          // map socketId -> amount
+  note = ""
+}) {
+  return {
+    handId: room.handId,
+    type,
+    roomId: room.id,
+    board: room.community.slice(),
+    pot,
+    note,
+    winners: winners.map(w => ({
+      id: w.id,
+      name: w.name,
+      winAmount: shares[w.id] || 0,
+      hand: handDescs[w.id] || (type === "fold" ? "Thắng do tất cả đối thủ fold" : "Winner"),
+    })),
+    ts: Date.now(),
+  };
+}
+
 function startHand(room) {
   if (room.players.length < 2) return;
 
   room.handId += 1;
+
+  // ✅ clear last result when new hand begins
+  room.lastResult = null;
+
   room.started = true;
   room.stage = "preflop";
   room.pot = 0;
@@ -199,6 +234,31 @@ function startHand(room) {
   broadcastRoom(room);
 }
 
+function finishHandWithResult(room, payload) {
+  // đưa game sang showdown để client biết “ván kết thúc”
+  room.stage = "showdown";
+  room.lastResult = payload;
+  broadcastRoom(room);
+
+  setTimeout(() => {
+    const eligible = room.players.filter((p) => p.tokens > 0).length;
+    if (eligible >= 2) startHand(room);
+    else {
+      room.started = false;
+      room.stage = "lobby";
+      room.pot = 0;
+      room.community = [];
+      for (const p of room.players) {
+        p.cards = [];
+        p.folded = false;
+        p.allIn = false;
+        p.betThisRound = 0;
+      }
+      broadcastRoom(room);
+    }
+  }, RESULT_DELAY_MS);
+}
+
 function resolveShowdown(room) {
   const contenders = activePlayers(room);
 
@@ -211,39 +271,63 @@ function resolveShowdown(room) {
   const winnersHands = Hand.winners(solved.map((x) => x.hand));
   const winners = solved.filter((x) => winnersHands.includes(x.hand)).map((x) => x.p);
 
-  const share = Math.floor(room.pot / winners.length);
-  let remainder = room.pot - share * winners.length;
+  const handDescs = {};
+  for (const x of solved) {
+    // pokersolver: hand.descr thường có dạng "Pair, A's"...
+    handDescs[x.p.id] = x.hand?.descr || "Winner";
+  }
 
+  const pot = room.pot;
+  const share = Math.floor(pot / winners.length);
+  let remainder = pot - share * winners.length;
+
+  const shares = {};
   for (const w of winners) {
-    w.tokens += share;
+    let winAmount = share;
     if (remainder >= MIN_UNIT) {
-      w.tokens += MIN_UNIT;
+      winAmount += MIN_UNIT;
       remainder -= MIN_UNIT;
     }
+    shares[w.id] = (shares[w.id] || 0) + winAmount;
+    w.tokens += winAmount;
   }
 
   room.pot = 0;
-  broadcastRoom(room);
 
-  setTimeout(() => {
-    const eligible = room.players.filter((p) => p.tokens > 0).length;
-    if (eligible >= 2) startHand(room);
-    else {
-      room.started = false;
-      room.stage = "lobby";
-      for (const p of room.players) p.cards = [];
-      broadcastRoom(room);
-    }
-  }, 3000);
+  const payload = buildResultPayload({
+    room,
+    type: "showdown",
+    winners,
+    handDescs,
+    pot,
+    shares,
+    note: "So bài và chia pot",
+  });
+
+  finishHandWithResult(room, payload);
 }
 
 function advanceStage(room) {
   const act = activePlayers(room);
   if (act.length === 1) {
-    act[0].tokens += room.pot;
+    // ✅ fold win (tất cả đối thủ fold)
+    const winner = act[0];
+    const pot = room.pot;
+
+    winner.tokens += pot;
     room.pot = 0;
-    room.stage = "showdown";
-    broadcastRoom(room);
+
+    const shares = { [winner.id]: pot };
+    const payload = buildResultPayload({
+      room,
+      type: "fold",
+      winners: [winner],
+      pot,
+      shares,
+      note: "Thắng do tất cả đối thủ fold",
+    });
+
+    finishHandWithResult(room, payload);
     return;
   }
 
@@ -269,11 +353,11 @@ function advanceStage(room) {
     room.highestBet = 0;
     room.lastAggressorSeat = null;
   } else if (room.stage === "river") {
-    room.stage = "showdown";
     resolveShowdown(room);
     return;
   }
 
+  // postflop: first to act is seat after dealer
   const seats = room.players.map((p) => p.seat).sort((a, b) => a - b);
   const dealerIdx = seats.indexOf(room.dealerSeat);
   const first = seats[(dealerIdx + 1) % seats.length];
@@ -311,11 +395,8 @@ function doAction(room, player, action, amount = 0) {
 
   const act = activePlayers(room);
   if (act.length === 1) {
-    act[0].tokens += room.pot;
-    room.pot = 0;
-    room.stage = "showdown";
-    broadcastRoom(room);
-    setTimeout(() => startHand(room), 2000);
+    // ✅ fold win ngay
+    advanceStage(room);
     return;
   }
 
@@ -351,6 +432,7 @@ function removePlayerFromRoom(room, socketId) {
     room.stage = "lobby";
     room.pot = 0;
     room.community = [];
+    room.lastResult = null;
     for (const p of room.players) {
       p.cards = [];
       p.folded = false;
@@ -447,7 +529,7 @@ io.on("connection", (socket) => {
     socket.join(roomId);
 
     // join mid-game => spectator until next hand
-    if (room.started && room.stage !== "lobby") {
+    if (room.started && room.stage !== "lobby" && room.stage !== "showdown") {
       player.cards = [];
       player.folded = true;
       player.allIn = false;
@@ -457,7 +539,6 @@ io.on("connection", (socket) => {
     broadcastRoom(room);
   });
 
-  // ✅ NEW: Leave room (Exit match / leave lobby)
   socket.on("leaveRoom", ({ roomId }) => {
     roomId = safeRoomId(roomId);
     if (!roomId) return;

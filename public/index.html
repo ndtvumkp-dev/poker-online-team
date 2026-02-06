@@ -61,7 +61,6 @@
       to{ transform: translate3d(1%, 1%, 0) scale(1.06); }
     }
 
-    /* Layout: center everything */
     .page{
       min-height:100vh;
       display:flex;
@@ -189,7 +188,6 @@
       margin-top: 10px;
     }
 
-    /* Rooms list */
     .rooms{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .roomItem{
       border:1px solid rgba(255,255,255,.10);
@@ -204,7 +202,6 @@
     .roomItem b{ font-weight:900; }
     .roomMeta{ color: var(--muted); font-size: 12px; }
 
-    /* Table */
     .tableCard{ width: min(1100px, 100%); }
     .tableWrap{
       position:relative;
@@ -264,8 +261,33 @@
       left:50%; top: 255px;
       transform: translate(-50%, -50%);
       display:flex; flex-direction:column; align-items:center; gap:10px;
-      width:min(640px, calc(100% - 28px));
+      width:min(700px, calc(100% - 28px));
       z-index: 2;
+    }
+
+    /* ✅ TURN BANNER (rất dễ nhìn) */
+    .turnBanner{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+      box-shadow: 0 12px 30px rgba(34,197,94,.12);
+      font-weight: 900;
+      letter-spacing: .2px;
+      color: #dfffe9;
+    }
+    .turnDot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(34,197,94,.95);
+      box-shadow: 0 0 0 6px rgba(34,197,94,.15);
+      animation: pulseDot 1s ease-in-out infinite;
+    }
+    @keyframes pulseDot{
+      0%,100%{ transform: scale(1); opacity: 1; }
+      50%{ transform: scale(1.25); opacity: .75; }
     }
 
     /* ✅ REAL PLAYING CARD */
@@ -362,7 +384,6 @@
     .actionsBar .btn{ width:auto; flex:0 0 auto; }
     .amt{ width:220px; max-width:100%; }
 
-    /* Seats */
     .seat{
       position:absolute;
       width: 240px;
@@ -424,10 +445,21 @@
       border-color: rgba(124,92,255,.45);
       box-shadow: 0 0 0 4px rgba(124,92,255,.12), 0 16px 45px rgba(0,0,0,.25);
     }
+
+    /* ✅ TURN seat highlight cực rõ */
     .seat.turn .pBox{
-      outline: 2px solid rgba(34,197,94,.75);
-      box-shadow: 0 0 0 4px rgba(34,197,94,.12), 0 16px 45px rgba(0,0,0,.25);
+      outline: 2px solid rgba(34,197,94,.95);
+      box-shadow:
+        0 0 0 6px rgba(34,197,94,.16),
+        0 0 35px rgba(34,197,94,.28),
+        0 16px 45px rgba(0,0,0,.25);
+      animation: turnPulse 1s ease-in-out infinite;
     }
+    @keyframes turnPulse{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-2px); }
+    }
+
     .seat.folded{ opacity:.65; }
 
     .dealerBtn{
@@ -444,7 +476,6 @@
       box-shadow: 0 10px 25px rgba(0,0,0,.25);
     }
 
-    /* 9-max seat positions */
     .s0{ left:50%; bottom: 10px; transform: translateX(-50%); width: 280px; }
     .s1{ right: 26px; bottom: 85px; }
     .s2{ right: 26px; top: 220px; }
@@ -466,6 +497,66 @@
       .s5{ left: 110px; }
     }
 
+    /* ✅ RESULT MODAL */
+    .modalBackdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(6px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 10;
+      padding: 16px;
+    }
+    .modal{
+      width: min(680px, 100%);
+      background: linear-gradient(180deg, rgba(14,27,54,.92), rgba(16,31,62,.92));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 20px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+      padding: 16px;
+    }
+    .modal h2{
+      margin:0 0 6px;
+      font-size: 18px;
+      font-weight: 900;
+      text-align:center;
+    }
+    .modal .sub{
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .resultList{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .resultItem{
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(8,14,28,.35);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .resultItem b{ font-weight: 900; }
+    .resultItem .right{
+      text-align:right;
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .modalFooter{
+      display:flex;
+      justify-content:center;
+      margin-top: 12px;
+    }
+
     .hidden{ display:none !important; }
   </style>
 </head>
@@ -473,7 +564,7 @@
 <body>
   <div class="glow"></div>
 
-  <!-- PAGE: HOME -->
+  <!-- HOME -->
   <div class="page" id="pageHome">
     <div class="wrap">
       <div class="card">
@@ -506,7 +597,7 @@
     </div>
   </div>
 
-  <!-- PAGE: CREATE ROOM -->
+  <!-- CREATE -->
   <div class="page hidden" id="pageCreate">
     <div class="wrap">
       <div class="card">
@@ -548,7 +639,7 @@
     </div>
   </div>
 
-  <!-- PAGE: FIND ROOM -->
+  <!-- FIND -->
   <div class="page hidden" id="pageFind">
     <div class="wrap">
       <div class="card">
@@ -561,7 +652,6 @@
         </div>
 
         <button class="btn success" id="refreshRooms">🔄 Tải danh sách phòng</button>
-
         <div class="rooms" id="roomsList"></div>
 
         <div class="hint" style="margin-top:10px;">
@@ -578,7 +668,7 @@
     </div>
   </div>
 
-  <!-- PAGE: LOBBY (WAITING ROOM) -->
+  <!-- LOBBY -->
   <div class="page hidden" id="pageLobby">
     <div class="wrap">
       <div class="card">
@@ -603,7 +693,7 @@
     </div>
   </div>
 
-  <!-- PAGE: TABLE -->
+  <!-- TABLE -->
   <div class="page hidden" id="pageTable">
     <div class="tableCard card">
       <div class="brand" style="margin-bottom:10px;">
@@ -618,7 +708,6 @@
         <div class="pill"><b>Vòng:</b> <span id="stage"></span></div>
         <div class="pill"><b>Pot:</b> <span id="pot"></span></div>
         <div class="pill"><b>Turn:</b> <span id="turnLabel">-</span></div>
-        <!-- ✅ NEW: Exit button -->
         <button class="btn danger" id="exitMatchBtn" style="width:auto; padding:10px 12px;">🚪 Thoát trận</button>
       </div>
 
@@ -626,7 +715,26 @@
         <div class="felt"></div>
         <div class="rim"></div>
 
+        <!-- ✅ RESULT MODAL -->
+        <div class="modalBackdrop" id="resultModalBackdrop">
+          <div class="modal">
+            <h2 id="resultTitle">Kết quả ván</h2>
+            <div class="sub" id="resultSub">—</div>
+
+            <div class="resultList" id="resultList"></div>
+
+            <div class="modalFooter">
+              <button class="btn ghost" id="closeResultBtn" style="width:auto; padding:10px 14px;">Đóng</button>
+            </div>
+          </div>
+        </div>
+
         <div class="centerHUD" id="centerHUD">
+          <div class="turnBanner" id="turnBanner" style="display:none;">
+            <div class="turnDot"></div>
+            <div id="turnBannerText">ĐẾN LƯỢT: -</div>
+          </div>
+
           <div class="communityCards" id="communityCards"></div>
 
           <div class="actionsBar">
@@ -653,13 +761,12 @@
   <script>
     const socket = io();
 
-    // Local app state
     let myId = "";
     let myName = "";
     let roomId = "";
     let isHost = false;
+    let lastShownResultTs = 0;
 
-    // Helpers
     const $ = (id) => document.getElementById(id);
     const show = (id) => $(id).classList.remove("hidden");
     const hide = (id) => $(id).classList.add("hidden");
@@ -683,30 +790,62 @@
       setErr("tableErr","");
     }
 
-    // ====== REAL CARD RENDER ======
+    // ====== card render ======
     const suitMap = { s:"♠", h:"♥", d:"♦", c:"♣" };
-    function prettyRank(r){
-      if (r === "T") return "10";
-      return r;
-    }
+    function prettyRank(r){ return r === "T" ? "10" : r; }
+
     function renderPlayingCard(code){
-      // code like "Td", "2c", or "??"
-      if (!code || code === "??") {
-        return `<div class="playing-card back" aria-label="Hidden card"></div>`;
-      }
+      if (!code || code === "??") return `<div class="playing-card back"></div>`;
       const r = code.slice(0,1);
       const s = code.slice(1,2);
       const suit = suitMap[s] || "?";
       const rank = prettyRank(r);
       const isRed = (s === "h" || s === "d");
       return `
-        <div class="playing-card ${isRed ? "red" : ""}" aria-label="${rank}${suit}">
+        <div class="playing-card ${isRed ? "red" : ""}">
           <div class="corner"><div class="rank">${rank}</div><div class="suit">${suit}</div></div>
           <div class="center">${suit}</div>
           <div class="corner bottom"><div class="rank">${rank}</div><div class="suit">${suit}</div></div>
         </div>
       `;
     }
+
+    // ===== result modal =====
+    function showResultModal(result){
+      if (!result || !result.ts) return;
+      if (result.ts <= lastShownResultTs) return; // không show lại
+      lastShownResultTs = result.ts;
+
+      $("resultTitle").textContent = "Kết quả ván #" + (result.handId ?? "");
+      const board = (result.board || []).join(" ");
+      $("resultSub").textContent = `Pot: ${result.pot} • Board: ${board || "—"} • ${result.note || ""}`;
+
+      const list = $("resultList");
+      list.innerHTML = "";
+      (result.winners || []).forEach(w => {
+        const div = document.createElement("div");
+        div.className = "resultItem";
+        div.innerHTML = `
+          <div>
+            <div><b>🏆 ${esc(w.name)}</b></div>
+            <div style="color:var(--muted); font-size:12px; margin-top:6px;">
+              ${esc(w.hand || "")}
+            </div>
+          </div>
+          <div class="right">
+            +${w.winAmount || 0}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      $("resultModalBackdrop").style.display = "flex";
+    }
+
+    function hideResultModal(){
+      $("resultModalBackdrop").style.display = "none";
+    }
+    $("closeResultBtn").onclick = hideResultModal;
 
     // Navigation
     $("goCreate").onclick = () => {
@@ -726,21 +865,19 @@
     $("backFromFind").onclick = () => go("pageHome");
     $("refreshRooms").onclick = () => requestRooms();
 
-    // Leave (Lobby)
     $("leaveLobby").onclick = () => {
       if (roomId) socket.emit("leaveRoom", { roomId });
       roomId = "";
       go("pageHome");
     };
 
-    // ✅ Exit match
     $("exitMatchBtn").onclick = () => {
       if (roomId) socket.emit("leaveRoom", { roomId });
       roomId = "";
+      hideResultModal();
       go("pageHome");
     };
 
-    // Create room -> join -> lobby
     $("createAndGoLobby").onclick = () => {
       const rid = $("createRoomId").value.trim().slice(0,24);
       const maxPlayers = parseInt($("createMaxPlayers").value || "9", 10);
@@ -748,16 +885,12 @@
       roomId = rid;
 
       socket.emit("createRoom", { roomId, name: myName, maxPlayers });
-
-      setTimeout(() => {
-        socket.emit("join", { roomId, name: myName });
-      }, 100);
+      setTimeout(() => socket.emit("join", { roomId, name: myName }), 100);
 
       go("pageLobby");
       $("lobbyRoomLabel").textContent = roomId;
     };
 
-    // Find: join chosen room -> lobby
     function joinRoom(rid){
       roomId = rid;
       socket.emit("join", { roomId, name: myName });
@@ -765,7 +898,6 @@
       $("lobbyRoomLabel").textContent = roomId;
     }
 
-    // Lobby: start
     $("hostStartBtn").onclick = () => {
       if (!roomId) return;
       socket.emit("start", { roomId });
@@ -781,7 +913,6 @@
       setErr("homeErr", m);
     });
 
-    // Rooms list
     function requestRooms(){
       $("roomsList").innerHTML = `<div class="hint" style="text-align:left;">Đang tải danh sách phòng...</div>`;
       socket.emit("listRooms");
@@ -808,21 +939,23 @@
           </div>
         `;
         const btn = div.querySelector("button");
-        btn.onclick = () => {
-          if (r.started) return;
-          joinRoom(r.id);
-        };
+        btn.onclick = () => { if (!r.started) joinRoom(r.id); };
         list.appendChild(div);
       });
     });
 
-    // ====== GAME STATE ======
+    // ===== state =====
     socket.on("state", (state) => {
-      // Host detection
       isHost = (state.hostId && state.hostId === myId) || (!state.hostId && state.players?.length && state.players[0].id === myId);
+
+      // ✅ nếu có kết quả ván trước -> show popup
+      if (state.lastResult) {
+        showResultModal(state.lastResult);
+      }
 
       // Lobby
       if (!state.started || state.stage === "lobby"){
+        hideResultModal();
         if ($("pageLobby").classList.contains("hidden")) go("pageLobby");
         $("lobbyRoomLabel").textContent = state.id;
         roomId = state.id;
@@ -848,6 +981,16 @@
 
       renderCommunity(state.community || []);
       renderSeats(state);
+
+      // ✅ turn banner
+      const players = (state.players || []);
+      const turnP = players.find(p => p.seat === state.currentSeat);
+      if (turnP) {
+        $("turnBanner").style.display = "inline-flex";
+        $("turnBannerText").textContent = "ĐẾN LƯỢT: " + turnP.name;
+      } else {
+        $("turnBanner").style.display = "none";
+      }
     });
 
     function renderCommunity(community){
@@ -889,10 +1032,15 @@
       players.forEach((p, idx) => {
         const slot = visualSlots[idx % visualSlots.length];
         const seatDiv = document.createElement("div");
-        seatDiv.className = `seat ${slot}` + (p.id===myId ? " me" : "") + (p.seat===state.currentSeat ? " turn" : "") + (p.folded ? " folded" : "");
+        seatDiv.className =
+          `seat ${slot}` +
+          (p.id===myId ? " me" : "") +
+          (p.seat===state.currentSeat ? " turn" : "") +
+          (p.folded ? " folded" : "");
 
         const status = p.folded ? "FOLDED" : (p.allIn ? "ALL-IN" : (p.seat === state.currentSeat ? "ĐẾN LƯỢT" : "CHỜ"));
         const bet = p.betThisRound || 0;
+
         const blindHtml =
           (p.seat === sbSeat) ? `<div class="blindTag">SB</div>` :
           (p.seat === bbSeat) ? `<div class="blindTag bb">BB</div>` : ``;
